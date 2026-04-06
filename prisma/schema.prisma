@@ -1,12 +1,121 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model MedicationCategory {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  medications Medication[]
+  createdAt   DateTime     @default(now())
+}
+
+model ServiceType {
+  id        String           @id @default(cuid())
+  name      String           @unique
+  sessions  PatientSession[]
+  createdAt DateTime         @default(now())
+}
+
+model PaymentMethod {
+  id        String           @id @default(cuid())
+  name      String           @unique
+  sessions  PatientSession[]
+  createdAt DateTime         @default(now())
+}
+
+model ExpenseCategory {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  expenses  Expense[]
+  createdAt DateTime  @default(now())
+}
+
+model Patient {
+  id        String           @id @default(cuid())
+  name      String
+  sessions  PatientSession[]
+  createdAt DateTime         @default(now())
+}
+
+model Medication {
+  id           String              @id @default(cuid())
+  name         String
+  categoryId   String
+  category     MedicationCategory  @relation(fields: [categoryId], references: [id])
+  cost         Decimal             @db.Decimal(10, 2)
+  sellingPrice Decimal             @db.Decimal(10, 2)
+  stock        Int                 @default(0)
+  threshold    Int                 @default(10)
+  restockItems RestockBatchItem[]
+  sessionMeds  SessionMedication[]
+  createdAt    DateTime            @default(now())
+}
+
+model RestockBatch {
+  id        String             @id @default(cuid())
+  date      DateTime
+  items     RestockBatchItem[]
+  expense   Expense?
+  createdAt DateTime           @default(now())
+}
+
+model RestockBatchItem {
+  id             String       @id @default(cuid())
+  restockBatchId String
+  restockBatch   RestockBatch @relation(fields: [restockBatchId], references: [id])
+  medicationId   String
+  medication     Medication   @relation(fields: [medicationId], references: [id])
+  quantity       Int
+  costPerUnit    Decimal      @db.Decimal(10, 2)
+  expiryDate     DateTime?
+  createdAt      DateTime     @default(now())
+}
+
+model PatientSession {
+  id              String              @id @default(cuid())
+  patientId       String
+  patient         Patient             @relation(fields: [patientId], references: [id])
+  serviceTypeId   String
+  serviceType     ServiceType         @relation(fields: [serviceTypeId], references: [id])
+  paymentMethodId String
+  paymentMethod   PaymentMethod       @relation(fields: [paymentMethodId], references: [id])
+  date            DateTime
+  description     String?
+  paymentAmount   Decimal             @db.Decimal(10, 2)
+  medications     SessionMedication[]
+  createdAt       DateTime            @default(now())
+}
+
+model SessionMedication {
+  id           String         @id @default(cuid())
+  sessionId    String
+  session      PatientSession @relation(fields: [sessionId], references: [id])
+  medicationId String
+  medication   Medication     @relation(fields: [medicationId], references: [id])
+  quantity     Int
+  unitCost     Decimal        @db.Decimal(10, 2)
+  sellingPrice Decimal        @db.Decimal(10, 2)
+  createdAt    DateTime       @default(now())
+}
+
+model Expense {
+  id             String           @id @default(cuid())
+  categoryId     String?
+  category       ExpenseCategory? @relation(fields: [categoryId], references: [id])
+  type           ExpenseType      @default(MANUAL)
+  amount         Decimal          @db.Decimal(10, 2)
+  description    String?
+  date           DateTime
+  restockBatchId String?          @unique
+  restockBatch   RestockBatch?    @relation(fields: [restockBatchId], references: [id])
+  createdAt      DateTime         @default(now())
+}
+
+enum ExpenseType {
+  RESTOCK
+  MANUAL
 }
