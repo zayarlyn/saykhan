@@ -4,12 +4,20 @@ import bcrypt from 'bcryptjs'
 import { sessionOptions, SessionData } from '@/lib/session'
 
 export async function POST(req: NextRequest) {
-  const { username, password } = await req.json()
+  let body: { username?: unknown; password?: unknown }
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+  }
+  const { username, password } = body
 
-  if (
-    username !== process.env.ADMIN_USERNAME ||
-    !(await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH as string))
-  ) {
+  // Always run bcrypt to avoid timing oracle that reveals correct username
+  const passwordMatch = await bcrypt.compare(
+    String(password ?? ''),
+    process.env.ADMIN_PASSWORD_HASH as string
+  )
+  if (username !== process.env.ADMIN_USERNAME || !passwordMatch) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
 

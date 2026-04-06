@@ -20,16 +20,22 @@ export default function LoginPage() {
     const username = (form.elements.namedItem('username') as HTMLInputElement).value
     const password = (form.elements.namedItem('password') as HTMLInputElement).value
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      })
 
-    if (res.ok) {
-      router.push('/dashboard')
-    } else {
-      setError('Invalid username or password')
+      if (res.ok) {
+        router.refresh()
+        router.push('/dashboard')
+      } else {
+        setError('Invalid username or password')
+        setLoading(false)
+      }
+    } catch {
+      setError('Network error. Please try again.')
       setLoading(false)
     }
   }
