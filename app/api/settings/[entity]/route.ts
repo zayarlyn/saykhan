@@ -14,15 +14,17 @@ function getModel(entity: string) {
   return (modelMap as any)[entity]()
 }
 
-export async function GET(req: NextRequest, { params }: { params: { entity: string } }) {
-  const model = getModel(params.entity)
+export async function GET(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
+  const { entity } = await params
+  const model = getModel(entity)
   if (!model) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   const items = await model.findMany({ orderBy: { name: 'asc' } })
   return NextResponse.json(items)
 }
 
-export async function POST(req: NextRequest, { params }: { params: { entity: string } }) {
-  const model = getModel(params.entity)
+export async function POST(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
+  const { entity } = await params
+  const model = getModel(entity)
   if (!model) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const body = await req.json()
@@ -37,8 +39,9 @@ export async function POST(req: NextRequest, { params }: { params: { entity: str
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { entity: string } }) {
-  const model = getModel(params.entity)
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
+  const { entity } = await params
+  const model = getModel(entity)
   if (!model) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const { id } = await req.json()
