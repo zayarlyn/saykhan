@@ -66,9 +66,11 @@ export function DateTimePicker({ value, onChange, placeholder = 'Pick date & tim
             className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             value={value ? toTimeString(value) : ''}
             onChange={(e) => {
+              if (!e.target.value) return
               const parts = e.target.value.split(':')
               const hours = Number(parts[0])
               const minutes = Number(parts[1])
+              if (isNaN(hours) || isNaN(minutes)) return
               const next = value ? new Date(value) : new Date()
               next.setHours(hours, minutes, 0, 0)
               onChange(next)

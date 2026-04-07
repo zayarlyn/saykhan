@@ -101,7 +101,7 @@ export function RestockForm({ medications }: { medications: Medication[] }) {
               <div className="space-y-1">
                 <Label>Expiry Date</Label>
                 <DatePicker
-                  value={itemsValue[i]?.expiryDate ? new Date(itemsValue[i].expiryDate!) : undefined}
+                  value={itemsValue[i]?.expiryDate ? new Date(itemsValue[i]?.expiryDate as string) : undefined}
                   onChange={(date) => setValue(`items.${i}.expiryDate`, date ? date.toISOString() : '')}
                   placeholder="No expiry"
                 />
