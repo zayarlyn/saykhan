@@ -6,7 +6,41 @@ import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@/lib/utils"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
-const Select = SelectPrimitive.Root
+// -------------------------------------------------------------------
+// Context: maps item value → display label so SelectValue can look
+// up the human-readable string without relying on Base UI's `label`
+// prop (which only affects keyboard navigation in v1.3.0).
+//
+// `bumpVersion` is called by SelectItem after mounting so that
+// SelectValue re-renders and reads the now-populated labels map when
+// a defaultValue is set (items live inside a Portal that only mounts
+// when the popup opens, so they register labels after initial render).
+// -------------------------------------------------------------------
+type LabelsContextType = {
+  labelsRef: { current: Map<unknown, string> }
+  bumpVersion: () => void
+}
+const SelectLabelsContext = React.createContext<LabelsContextType | null>(null)
+
+type SelectProps = Omit<React.ComponentProps<typeof SelectPrimitive.Root>, 'onValueChange'> & {
+  onValueChange?: (value: string | null) => void
+}
+
+function Select({ children, onValueChange, ...props }: SelectProps) {
+  const labelsRef = React.useRef(new Map<unknown, string>())
+  const [, setVersion] = React.useState(0)
+  const bumpVersion = React.useCallback(() => setVersion(v => v + 1), [])
+  return (
+    <SelectLabelsContext.Provider value={{ labelsRef, bumpVersion }}>
+      <SelectPrimitive.Root
+        {...props}
+        onValueChange={onValueChange ? (v: unknown) => onValueChange(v as string | null) : undefined}
+      >
+        {children}
+      </SelectPrimitive.Root>
+    </SelectLabelsContext.Provider>
+  )
+}
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (
@@ -18,13 +52,28 @@ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   )
 }
 
-function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
+function SelectValue({
+  className,
+  placeholder,
+  children,
+  ...props
+}: SelectPrimitive.Value.Props & { placeholder?: React.ReactNode }) {
+  const ctx = React.useContext(SelectLabelsContext)
   return (
     <SelectPrimitive.Value
       data-slot="select-value"
       className={cn("flex flex-1 text-left", className)}
       {...props}
-    />
+    >
+      {(value: unknown) => {
+        if (value === null || value === undefined || value === "") {
+          return placeholder
+            ? <span className="text-muted-foreground">{placeholder}</span>
+            : null
+        }
+        return ctx?.labelsRef.current.get(value) ?? String(value)
+      }}
+    </SelectPrimitive.Value>
   )
 }
 
@@ -83,7 +132,7 @@ function SelectContent({
         <SelectPrimitive.Popup
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
-          className={cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+          className={cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className)}
           {...props}
         >
           <SelectScrollUpButton />
@@ -111,11 +160,29 @@ function SelectLabel({
 function SelectItem({
   className,
   children,
+  label,
   ...props
 }: SelectPrimitive.Item.Props) {
+  const ctx = React.useContext(SelectLabelsContext)
+  const textLabel = label ?? (typeof children === "string" ? children : undefined)
+
+  // Register synchronously during render (works on re-renders when popup is open)
+  if (ctx && props.value !== undefined && textLabel !== undefined) {
+    ctx.labelsRef.current.set(props.value, textLabel)
+  }
+
+  // After mount, bump version so SelectValue re-renders and reads the populated map.
+  // This handles the case where items are inside a Portal that only mounts on first open.
+  React.useLayoutEffect(() => {
+    if (ctx && props.value !== undefined && textLabel !== undefined) {
+      ctx.bumpVersion()
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
+      label={textLabel}
       className={cn(
         "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className
@@ -162,8 +229,7 @@ function SelectScrollUpButton({
       )}
       {...props}
     >
-      <ChevronUpIcon
-      />
+      <ChevronUpIcon />
     </SelectPrimitive.ScrollUpArrow>
   )
 }
@@ -181,8 +247,7 @@ function SelectScrollDownButton({
       )}
       {...props}
     >
-      <ChevronDownIcon
-      />
+      <ChevronDownIcon />
     </SelectPrimitive.ScrollDownArrow>
   )
 }
