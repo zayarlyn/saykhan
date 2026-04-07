@@ -170,7 +170,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 
 			<div className='space-y-1'>
 				<Label>Service Type</Label>
-				<Select onValueChange={(v: string | null) => setValue('serviceTypeId', v ?? '')}>
+				<Select defaultValue={defaultValues?.serviceTypeId} onValueChange={(v: string | null) => setValue('serviceTypeId', v ?? '')}>
 					<SelectTrigger>
 						<SelectValue placeholder='Select service…' />
 					</SelectTrigger>
@@ -204,7 +204,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 				</div>
 				<div className='space-y-1'>
 					<Label>Payment Method</Label>
-					<Select onValueChange={(v: string | null) => setValue('paymentMethodId', v ?? '')}>
+					<Select defaultValue={defaultValues?.paymentMethodId} onValueChange={(v: string | null) => setValue('paymentMethodId', v ?? '')}>
 						<SelectTrigger>
 							<SelectValue placeholder='Select…' />
 						</SelectTrigger>
