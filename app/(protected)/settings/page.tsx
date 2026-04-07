@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { LookupManager } from '@/components/settings/lookup-manager'
 import { Separator } from '@/components/ui/separator'
+import { SignOutButton } from '@/components/layout/sign-out-button'
 
 export default async function SettingsPage() {
   const [medCategories, serviceTypes, paymentMethods, expenseCategories] = await Promise.all([
@@ -20,6 +21,10 @@ export default async function SettingsPage() {
       <LookupManager label="Payment Methods" entity="payment-method" initial={paymentMethods} />
       <Separator />
       <LookupManager label="Expense Categories" entity="expense-category" initial={expenseCategories} />
+      <div className="md:hidden pt-2">
+        <Separator className="mb-4" />
+        <SignOutButton />
+      </div>
     </div>
   )
 }
