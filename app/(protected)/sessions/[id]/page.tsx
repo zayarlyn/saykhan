@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { buttonVariants } from '@/components/ui/button'
+import { BackButton } from '@/components/layout/back-button'
 
 export default async function SessionDetailPage({
   params,
@@ -27,6 +28,7 @@ export default async function SessionDetailPage({
 
   return (
     <div className="space-y-6 max-w-2xl">
+      <BackButton href="/sessions" label="Sessions" />
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">

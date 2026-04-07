@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { BackButton } from '@/components/layout/back-button'
 
 export default async function RestockDetailPage({
   params,
@@ -26,6 +27,7 @@ export default async function RestockDetailPage({
 
   return (
     <div className="space-y-6 max-w-2xl">
+      <BackButton href="/inventory" label="Inventory" />
       <div>
         <h1 className="text-2xl font-bold">Restock Batch</h1>
         <p className="text-sm text-gray-500 mt-0.5">{new Date(batch.date).toLocaleDateString()}</p>

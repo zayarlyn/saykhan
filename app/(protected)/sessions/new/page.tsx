@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { SessionForm } from '@/components/sessions/session-form'
+import { BackButton } from '@/components/layout/back-button'
 
 export default async function NewSessionPage() {
   const [patients, serviceTypes, paymentMethods, medications] = await Promise.all([
@@ -11,6 +12,7 @@ export default async function NewSessionPage() {
 
   return (
     <div className="space-y-4">
+      <BackButton href="/sessions" label="Sessions" />
       <h1 className="text-2xl font-bold">New Session</h1>
       <SessionForm
         patients={patients}

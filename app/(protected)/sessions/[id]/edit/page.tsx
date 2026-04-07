@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { SessionForm } from '@/components/sessions/session-form'
 import { buttonVariants } from '@/components/ui/button'
+import { BackButton } from '@/components/layout/back-button'
 
 export default async function EditSessionPage({
   params,
@@ -32,7 +33,7 @@ export default async function EditSessionPage({
     patientName: session.patient.name,
     serviceTypeId: session.serviceTypeId,
     paymentMethodId: session.paymentMethodId,
-    date: new Date(session.date).toISOString().slice(0, 16),
+    date: new Date(session.date).toISOString(),
     description: session.description ?? undefined,
     paymentAmount: Number(session.paymentAmount),
     medications: session.medications.map(m => ({
@@ -70,6 +71,7 @@ export default async function EditSessionPage({
 
   return (
     <div className="space-y-4">
+      <BackButton href={`/sessions/${id}`} label="Session" />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Edit Session</h1>
         <Link href={`/sessions/${id}`} className={buttonVariants({ variant: 'outline', size: 'sm' })}>

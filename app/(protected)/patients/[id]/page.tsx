@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { BackButton } from '@/components/layout/back-button'
 
 export default async function PatientPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -16,6 +17,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="space-y-4 max-w-2xl">
+      <BackButton href="/patients" label="Patients" />
       <h1 className="text-2xl font-bold">{patient.name}</h1>
       <p className="text-sm text-gray-500">{patient.sessions.length} session(s)</p>
       <div className="space-y-3">
