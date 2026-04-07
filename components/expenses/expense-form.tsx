@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DatePicker } from '@/components/ui/date-picker'
 
 const schema = z.object({
   categoryId: z.string().optional(),
@@ -23,10 +24,12 @@ interface Category { id: string; name: string }
 
 export function ExpenseForm({ categories }: { categories: Category[] }) {
   const router = useRouter()
-  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema) as any,
-    defaultValues: { date: new Date().toISOString().slice(0, 10) },
+    defaultValues: { date: new Date().toISOString() },
   })
+
+  const dateValue = watch('date')
 
   async function onSubmit(data: FormData) {
     const res = await fetch('/api/expenses', {
@@ -41,7 +44,7 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
       <div className="space-y-1">
         <Label>Category</Label>
-        <Select onValueChange={v => setValue('categoryId', v)}>
+        <Select onValueChange={(v: string | null) => setValue('categoryId', v ?? undefined)}>
           <SelectTrigger><SelectValue placeholder="Select category (optional)" /></SelectTrigger>
           <SelectContent>
             {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
@@ -55,7 +58,10 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
       </div>
       <div className="space-y-1">
         <Label>Date</Label>
-        <Input type="date" {...register('date')} />
+        <DatePicker
+          value={dateValue ? new Date(dateValue) : undefined}
+          onChange={(date) => setValue('date', date ? date.toISOString() : '')}
+        />
       </div>
       <div className="space-y-1">
         <Label>Description</Label>
