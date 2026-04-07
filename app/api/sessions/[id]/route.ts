@@ -54,56 +54,72 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const { medications: newMeds, ...sessionFields } = parsed.data
 
-  const updated = await prisma.$transaction(async tx => {
-    // Restore stock for old medications
-    await Promise.all(
-      existing.medications.map(m =>
-        tx.medication.update({
-          where: { id: m.medicationId },
-          data: { stock: { increment: m.quantity } },
-        })
+  let updated
+  try {
+    updated = await prisma.$transaction(async tx => {
+      // Restore stock for old medications
+      await Promise.all(
+        existing.medications.map(m =>
+          tx.medication.update({
+            where: { id: m.medicationId },
+            data: { stock: { increment: m.quantity } },
+          })
+        )
       )
-    )
-    // Delete old session medications
-    await tx.sessionMedication.deleteMany({ where: { sessionId: id } })
+      // Delete old session medications
+      await tx.sessionMedication.deleteMany({ where: { sessionId: id } })
 
-    // Create new session medications and deduct stock
-    await Promise.all([
-      tx.sessionMedication.createMany({
-        data: newMeds.map(m => ({
-          sessionId: id,
-          medicationId: m.medicationId,
-          quantity: m.quantity,
-          unitCost: m.unitCost,
-          sellingPrice: m.sellingPrice,
-        })),
-      }),
-      ...newMeds.map(m =>
-        tx.medication.update({
-          where: { id: m.medicationId },
-          data: { stock: { decrement: m.quantity } },
-        })
-      ),
-    ])
+      // Check sufficient stock for new medications (after old stock has been restored)
+      for (const med of newMeds) {
+        const medication = await tx.medication.findUnique({ where: { id: med.medicationId } })
+        if (!medication || medication.stock < med.quantity) {
+          throw new Error(`Insufficient stock for ${med.medicationId}`)
+        }
+      }
 
-    return tx.patientSession.update({
-      where: { id },
-      data: {
-        patientId: sessionFields.patientId,
-        serviceTypeId: sessionFields.serviceTypeId,
-        paymentMethodId: sessionFields.paymentMethodId,
-        date: new Date(sessionFields.date),
-        description: sessionFields.description ?? null,
-        paymentAmount: sessionFields.paymentAmount,
-      },
-      include: {
-        patient: true,
-        serviceType: true,
-        paymentMethod: true,
-        medications: { include: { medication: true } },
-      },
+      // Create new session medications and deduct stock
+      await Promise.all([
+        tx.sessionMedication.createMany({
+          data: newMeds.map(m => ({
+            sessionId: id,
+            medicationId: m.medicationId,
+            quantity: m.quantity,
+            unitCost: m.unitCost,
+            sellingPrice: m.sellingPrice,
+          })),
+        }),
+        ...newMeds.map(m =>
+          tx.medication.update({
+            where: { id: m.medicationId },
+            data: { stock: { decrement: m.quantity } },
+          })
+        ),
+      ])
+
+      return tx.patientSession.update({
+        where: { id },
+        data: {
+          patientId: sessionFields.patientId,
+          serviceTypeId: sessionFields.serviceTypeId,
+          paymentMethodId: sessionFields.paymentMethodId,
+          date: new Date(sessionFields.date),
+          description: sessionFields.description ?? null,
+          paymentAmount: sessionFields.paymentAmount,
+        },
+        include: {
+          patient: true,
+          serviceType: true,
+          paymentMethod: true,
+          medications: { include: { medication: true } },
+        },
+      })
     })
-  })
+  } catch (e: any) {
+    if (e?.message?.startsWith('Insufficient stock')) {
+      return NextResponse.json({ error: e.message }, { status: 422 })
+    }
+    throw e
+  }
 
   return NextResponse.json(updated)
 }

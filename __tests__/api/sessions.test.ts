@@ -36,7 +36,6 @@ describe('POST /api/sessions', () => {
     await prisma.patient.deleteMany({ where: { name: 'Test Patient Sessions' } })
     await prisma.serviceType.deleteMany({ where: { name: 'Test Service Sessions' } })
     await prisma.paymentMethod.deleteMany({ where: { name: 'Cash Sessions' } })
-    await prisma.$disconnect()
   })
 
   it('creates session and decrements stock', async () => {
@@ -136,7 +135,6 @@ describe('PATCH /api/sessions/[id]', () => {
     await prisma.patient.deleteMany({ where: { name: 'Patch Patient' } })
     await prisma.serviceType.deleteMany({ where: { name: 'Patch Service' } })
     await prisma.paymentMethod.deleteMany({ where: { name: 'Patch Payment' } })
-    await prisma.$disconnect()
   })
 
   it('restores old stock and deducts new stock on medication change', async () => {
@@ -183,4 +181,8 @@ describe('PATCH /api/sessions/[id]', () => {
     const res = await PATCH(req, { params: Promise.resolve({ id: 'nonexistent' }) })
     expect(res.status).toBe(404)
   })
+})
+
+afterAll(async () => {
+  await prisma.$disconnect()
 })
