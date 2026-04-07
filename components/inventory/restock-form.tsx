@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DateTimePicker } from '@/components/ui/datetime-picker'
+import { DatePicker } from '@/components/ui/date-picker'
 
 const schema = z.object({
   date: z.string().min(1),
@@ -27,14 +29,17 @@ interface Medication { id: string; name: string }
 export function RestockForm({ medications }: { medications: Medication[] }) {
   const router = useRouter()
   const [error, setError] = useState('')
-  const { register, handleSubmit, control, setValue, formState: { isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, control, setValue, watch, formState: { isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema) as any,
     defaultValues: {
-      date: new Date().toISOString().slice(0, 16),
+      date: new Date().toISOString(),
       items: [{ medicationId: '', quantity: 1, costPerUnit: 0, expiryDate: '' }],
     },
   })
   const { fields, append, remove } = useFieldArray({ control, name: 'items' })
+
+  const dateValue = watch('date')
+  const itemsValue = watch('items')
 
   async function onSubmit(data: FormData) {
     const body = {
@@ -61,7 +66,10 @@ export function RestockForm({ medications }: { medications: Medication[] }) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
       <div className="space-y-1">
         <Label>Restock Date</Label>
-        <Input type="datetime-local" {...register('date')} />
+        <DateTimePicker
+          value={dateValue ? new Date(dateValue) : undefined}
+          onChange={(date) => setValue('date', date ? date.toISOString() : '')}
+        />
       </div>
       <div className="space-y-4">
         {fields.map((field, i) => (
@@ -72,10 +80,10 @@ export function RestockForm({ medications }: { medications: Medication[] }) {
                 <Button type="button" variant="ghost" size="sm" onClick={() => remove(i)}>Remove</Button>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>Medication</Label>
-                <Select onValueChange={v => setValue(`items.${i}.medicationId`, v)}>
+                <Select onValueChange={(v: string | null) => setValue(`items.${i}.medicationId`, v ?? '')}>
                   <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
                   <SelectContent>
                     {medications.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
@@ -92,7 +100,11 @@ export function RestockForm({ medications }: { medications: Medication[] }) {
               </div>
               <div className="space-y-1">
                 <Label>Expiry Date</Label>
-                <Input type="date" {...register(`items.${i}.expiryDate`)} />
+                <DatePicker
+                  value={itemsValue[i]?.expiryDate ? new Date(itemsValue[i].expiryDate!) : undefined}
+                  onChange={(date) => setValue(`items.${i}.expiryDate`, date ? date.toISOString() : '')}
+                  placeholder="No expiry"
+                />
               </div>
             </div>
           </div>
