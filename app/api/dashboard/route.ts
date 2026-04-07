@@ -1,13 +1,12 @@
+import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { SummaryCards } from '@/components/dashboard/summary-cards'
-import { LowStockList } from '@/components/dashboard/low-stock-list'
 
-export default async function DashboardPage() {
+export async function GET() {
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
 
-  const [sessions, expenses, lowStockMeds] = await Promise.all([
+  const [sessions, expenses, lowStock] = await Promise.all([
     prisma.patientSession.findMany({
       where: { date: { gte: startOfMonth, lte: endOfMonth } },
       include: { medications: true },
@@ -21,19 +20,16 @@ export default async function DashboardPage() {
   ])
 
   const revenue = sessions.reduce((sum, s) => sum + Number(s.paymentAmount), 0)
+
   const inventoryCost = sessions.reduce((sum, s) =>
     sum + s.medications.reduce((mSum, m) => mSum + m.quantity * Number(m.unitCost), 0), 0
   )
-  const adjustedExpenses = expenses.filter(e => e.type === 'MANUAL').reduce((sum, e) => sum + Number(e.amount), 0)
+
+  const adjustedExpenses = expenses
+    .filter(e => e.type === 'MANUAL')
+    .reduce((sum, e) => sum + Number(e.amount), 0)
+
   const netProfit = revenue - inventoryCost - adjustedExpenses
 
-  const monthName = now.toLocaleString('default', { month: 'long', year: 'numeric' })
-
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard — {monthName}</h1>
-      <LowStockList items={lowStockMeds.map(m => ({ ...m, stock: Number(m.stock), threshold: Number(m.threshold) }))} />
-      <SummaryCards stats={{ revenue, inventoryCost, adjustedExpenses, netProfit }} />
-    </div>
-  )
+  return NextResponse.json({ revenue, inventoryCost, adjustedExpenses, netProfit, lowStock })
 }
