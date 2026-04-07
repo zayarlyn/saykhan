@@ -16,3 +16,5 @@ export const createSessionSchema = z.object({
   paymentAmount: z.number().nonnegative(),
   medications: z.array(sessionMedicationSchema),
 })
+
+export const updateSessionSchema = createSessionSchema
