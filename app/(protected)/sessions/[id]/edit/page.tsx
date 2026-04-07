@@ -1,0 +1,83 @@
+import { notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import { SessionForm } from '@/components/sessions/session-form'
+
+export default async function EditSessionPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+
+  const [session, serviceTypes, paymentMethods, medications, patients] = await Promise.all([
+    prisma.patientSession.findUnique({
+      where: { id },
+      include: {
+        patient: true,
+        medications: { include: { medication: true } },
+      },
+    }),
+    prisma.serviceType.findMany({ orderBy: { name: 'asc' } }),
+    prisma.paymentMethod.findMany({ orderBy: { name: 'asc' } }),
+    prisma.medication.findMany({ orderBy: { name: 'asc' } }),
+    prisma.patient.findMany({ orderBy: { name: 'asc' } }),
+  ])
+
+  if (!session) notFound()
+
+  const defaultValues = {
+    patientId: session.patientId,
+    patientName: session.patient.name,
+    serviceTypeId: session.serviceTypeId,
+    paymentMethodId: session.paymentMethodId,
+    date: new Date(session.date).toISOString().slice(0, 16),
+    description: session.description ?? undefined,
+    paymentAmount: Number(session.paymentAmount),
+    medications: session.medications.map(m => ({
+      medicationId: m.medicationId,
+      quantity: m.quantity,
+      unitCost: Number(m.unitCost),
+      sellingPrice: Number(m.sellingPrice),
+    })),
+  }
+
+  async function handleSubmit(data: any) {
+    'use server'
+    const res = await fetch(
+      `${process.env.NEXTAUTH_URL ?? process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'}/api/sessions/${id}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          date: new Date(data.date).toISOString(),
+        }),
+      }
+    )
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error ?? 'Failed to update session')
+    }
+    redirect(`/sessions/${id}`)
+  }
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold">Edit Session</h1>
+      <SessionForm
+        patients={patients}
+        serviceTypes={serviceTypes}
+        paymentMethods={paymentMethods}
+        medications={medications.map(m => ({
+          id: m.id,
+          name: m.name,
+          cost: Number(m.cost),
+          sellingPrice: Number(m.sellingPrice),
+        }))}
+        defaultValues={defaultValues}
+        onSubmitOverride={handleSubmit}
+      />
+    </div>
+  )
+}
