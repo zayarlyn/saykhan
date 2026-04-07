@@ -2,6 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createRestockSchema } from '@/lib/validations/restock'
 
+export async function GET() {
+  const batches = await prisma.restockBatch.findMany({
+    include: {
+      _count: { select: { items: true } },
+      expense: { select: { amount: true } },
+    },
+    orderBy: { date: 'desc' },
+  })
+  return NextResponse.json(batches)
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const parsed = createRestockSchema.safeParse(body)
