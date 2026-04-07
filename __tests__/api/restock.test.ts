@@ -48,8 +48,7 @@ describe('POST /api/restock', () => {
 
 describe('GET /api/restock', () => {
   it('returns list of restock batches', async () => {
-    const req = new NextRequest('http://localhost/api/restock', { method: 'GET' })
-    const res = await GET_LIST(req)
+    const res = await GET_LIST()
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(Array.isArray(data)).toBe(true)
