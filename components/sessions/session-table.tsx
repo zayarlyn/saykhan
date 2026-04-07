@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Input } from '@/components/ui/input'
 
 interface Session {
   id: string
@@ -19,16 +21,47 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
     s.patient.name.toLowerCase().includes(search.toLowerCase()) ||
     s.serviceType.name.toLowerCase().includes(search.toLowerCase())
   )
+  const router = useRouter()
 
   return (
     <div className="space-y-3">
-      <input
-        className="border rounded px-3 py-1.5 text-sm w-64"
+      <Input
+        className="max-w-xs"
         placeholder="Search by patient or service…"
         value={search}
         onChange={e => setSearch(e.target.value)}
       />
-      <div className="rounded border overflow-hidden">
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-2">
+        {filtered.map(s => (
+          <div
+              key={s.id}
+              className="bg-white border rounded-lg p-3 space-y-1.5 cursor-pointer hover:bg-gray-50"
+              onClick={() => router.push(`/sessions/${s.id}`)}
+            >
+            <div className="flex items-start justify-between gap-2" onClick={e => e.stopPropagation()}>
+              <Link href={`/patients/${s.patient.id}`} className="font-medium text-sm hover:underline">
+                {s.patient.name}
+              </Link>
+              <span className="text-sm font-semibold shrink-0">{Number(s.paymentAmount).toLocaleString()}</span>
+            </div>
+            <div className="text-xs text-gray-500 flex items-center justify-between">
+              <span>{s.serviceType.name}</span>
+              <span>{new Date(s.date).toLocaleDateString()}</span>
+            </div>
+            {s.medications.length > 0 && (
+              <p className="text-xs text-gray-400 truncate">
+                {s.medications.map(m => `${m.medication.name} ×${m.quantity}`).join(', ')}
+              </p>
+            )}
+          </div>
+        ))}
+        {filtered.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No sessions found</p>}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block rounded border overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
             <tr>
@@ -42,8 +75,8 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
           </thead>
           <tbody>
             {filtered.map(s => (
-              <tr key={s.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-2">
+              <tr key={s.id} className="border-t hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/sessions/${s.id}`)}>
+                <td className="px-4 py-2" onClick={e => e.stopPropagation()}>
                   <Link href={`/patients/${s.patient.id}`} className="hover:underline">{s.patient.name}</Link>
                 </td>
                 <td className="px-4 py-2">{s.serviceType.name}</td>
