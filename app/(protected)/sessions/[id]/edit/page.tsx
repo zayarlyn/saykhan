@@ -1,7 +1,8 @@
-import { notFound } from 'next/navigation'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { SessionForm } from '@/components/sessions/session-form'
+import { buttonVariants } from '@/components/ui/button'
 
 export default async function EditSessionPage({
   params,
@@ -44,11 +45,16 @@ export default async function EditSessionPage({
 
   async function handleSubmit(data: any) {
     'use server'
+    const { cookies } = await import('next/headers')
+    const cookieStore = await cookies()
     const res = await fetch(
-      `${process.env.NEXTAUTH_URL ?? process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'}/api/sessions/${id}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'}/api/sessions/${id}`,
       {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: cookieStore.toString(),
+        },
         body: JSON.stringify({
           ...data,
           date: new Date(data.date).toISOString(),
@@ -64,7 +70,12 @@ export default async function EditSessionPage({
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Edit Session</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Edit Session</h1>
+        <Link href={`/sessions/${id}`} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+          Cancel
+        </Link>
+      </div>
       <SessionForm
         patients={patients}
         serviceTypes={serviceTypes}
