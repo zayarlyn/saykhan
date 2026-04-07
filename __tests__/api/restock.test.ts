@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { POST } from '@/app/api/restock/route'
-import { GET as GET_LIST } from '@/app/api/restock/route'
+import { POST, GET as GET_LIST } from '@/app/api/restock/route'
 import { GET as GET_ONE } from '@/app/api/restock/[id]/route'
 import { NextRequest } from 'next/server'
 
