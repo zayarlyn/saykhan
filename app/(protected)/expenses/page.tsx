@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { ExpenseTable } from '@/components/expenses/expense-table'
 
 export default async function ExpensesPage() {
@@ -13,9 +13,9 @@ export default async function ExpensesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Expenses</h1>
-        <Button asChild><Link href="/expenses/new">Add Expense</Link></Button>
+        <Link href="/expenses/new" className={buttonVariants()}>Add Expense</Link>
       </div>
-      <ExpenseTable expenses={expenses.map(e => ({ ...e, amount: Number(e.amount) }))} />
+      <ExpenseTable expenses={expenses.map(e => ({ ...e, amount: Number(e.amount), date: e.date.toISOString() }))} />
     </div>
   )
 }

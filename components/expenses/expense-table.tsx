@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 
 interface Expense {
@@ -9,36 +10,75 @@ interface Expense {
   amount: number
   description: string | null
   date: string
+  restockBatchId: string | null
 }
 
 export function ExpenseTable({ expenses }: { expenses: Expense[] }) {
   return (
-    <div className="rounded border overflow-hidden">
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 text-left">
-          <tr>
-            <th className="px-4 py-2">Date</th>
-            <th className="px-4 py-2">Type</th>
-            <th className="px-4 py-2">Category</th>
-            <th className="px-4 py-2">Description</th>
-            <th className="px-4 py-2 text-right">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {expenses.map(e => (
-            <tr key={e.id} className="border-t hover:bg-gray-50">
-              <td className="px-4 py-2 text-gray-500">{new Date(e.date).toLocaleDateString()}</td>
-              <td className="px-4 py-2">
-                <Badge variant={e.type === 'RESTOCK' ? 'secondary' : 'outline'}>{e.type}</Badge>
-              </td>
-              <td className="px-4 py-2">{e.category?.name ?? '—'}</td>
-              <td className="px-4 py-2 text-gray-500">{e.description ?? '—'}</td>
-              <td className="px-4 py-2 text-right font-medium">{Number(e.amount).toLocaleString()}</td>
+    <div>
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-2">
+        {expenses.map(e => (
+          <div key={e.id} className="bg-white border rounded-lg p-3 space-y-1.5">
+            <div className="flex items-start justify-between gap-2">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5">
+                  <Badge variant={e.type === 'RESTOCK' ? 'secondary' : 'outline'} className="text-xs">{e.type}</Badge>
+                  {e.category && <span className="text-xs text-gray-500">{e.category.name}</span>}
+                </div>
+                {e.description && <p className="text-xs text-gray-500">{e.description}</p>}
+                {e.type === 'RESTOCK' && e.restockBatchId && (
+                  <Link href={`/inventory/restock/${e.restockBatchId}`} className="text-xs text-blue-600 hover:underline">
+                    View Restock
+                  </Link>
+                )}
+              </div>
+              <div className="text-right shrink-0">
+                <p className="font-semibold text-sm">{Number(e.amount).toLocaleString()}</p>
+                <p className="text-xs text-gray-400">{new Date(e.date).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+        {expenses.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No expenses yet</p>}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block rounded border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-left">
+            <tr>
+              <th className="px-4 py-2">Date</th>
+              <th className="px-4 py-2">Type</th>
+              <th className="px-4 py-2">Category</th>
+              <th className="px-4 py-2">Description</th>
+              <th className="px-4 py-2 text-right">Amount</th>
+              <th className="px-4 py-2" />
             </tr>
-          ))}
-        </tbody>
-      </table>
-      {expenses.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No expenses yet</p>}
+          </thead>
+          <tbody>
+            {expenses.map(e => (
+              <tr key={e.id} className="border-t hover:bg-gray-50">
+                <td className="px-4 py-2 text-gray-500">{new Date(e.date).toLocaleDateString()}</td>
+                <td className="px-4 py-2">
+                  <Badge variant={e.type === 'RESTOCK' ? 'secondary' : 'outline'}>{e.type}</Badge>
+                </td>
+                <td className="px-4 py-2">{e.category?.name ?? '—'}</td>
+                <td className="px-4 py-2 text-gray-500">{e.description ?? '—'}</td>
+                <td className="px-4 py-2 text-right font-medium">{Number(e.amount).toLocaleString()}</td>
+                <td className="px-4 py-2 text-right">
+                  {e.type === 'RESTOCK' && e.restockBatchId && (
+                    <Link href={`/inventory/restock/${e.restockBatchId}`} className="text-xs text-blue-600 hover:underline">
+                      View Restock
+                    </Link>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {expenses.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No expenses yet</p>}
+      </div>
     </div>
   )
 }
