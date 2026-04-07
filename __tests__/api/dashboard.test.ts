@@ -1,17 +1,34 @@
 import { prisma } from '@/lib/prisma'
 import { GET } from '@/app/api/dashboard/route'
-import { NextRequest } from 'next/server'
 
 describe('GET /api/dashboard', () => {
   let medId: string
   let catId: string
-  let patientId: string
-  let stId: string
-  let pmId: string
   let expCatId: string
   let restockBatchId: string
+  let baselineRevenue: number
+  let baselineInventoryCost: number
+  let baselineAdjustedExpenses: number
 
   beforeAll(async () => {
+    // Clean up any leftovers from prior runs to keep the test idempotent
+    await prisma.sessionMedication.deleteMany({ where: { session: { patient: { name: 'Dash Patient' } } } })
+    await prisma.patientSession.deleteMany({ where: { patient: { name: 'Dash Patient' } } })
+    await prisma.expense.deleteMany({ where: { category: { name: 'Dash Expense Cat' } } })
+    await prisma.medication.deleteMany({ where: { name: 'Aspirin Dash' } })
+    await prisma.medicationCategory.deleteMany({ where: { name: 'Dash Cat' } })
+    await prisma.patient.deleteMany({ where: { name: 'Dash Patient' } })
+    await prisma.serviceType.deleteMany({ where: { name: 'Dash Service' } })
+    await prisma.paymentMethod.deleteMany({ where: { name: 'Dash Cash' } })
+    await prisma.expenseCategory.deleteMany({ where: { name: 'Dash Expense Cat' } })
+
+    // Capture baseline (existing data in DB) before adding test data
+    const baseline = await GET()
+    const baselineData = await baseline.json()
+    baselineRevenue = baselineData.revenue
+    baselineInventoryCost = baselineData.inventoryCost
+    baselineAdjustedExpenses = baselineData.adjustedExpenses
+
     const cat = await prisma.medicationCategory.create({ data: { name: 'Dash Cat' } })
     catId = cat.id
     const med = await prisma.medication.create({
@@ -20,11 +37,8 @@ describe('GET /api/dashboard', () => {
     medId = med.id
 
     const patient = await prisma.patient.create({ data: { name: 'Dash Patient' } })
-    patientId = patient.id
     const st = await prisma.serviceType.create({ data: { name: 'Dash Service' } })
-    stId = st.id
     const pm = await prisma.paymentMethod.create({ data: { name: 'Dash Cash' } })
-    pmId = pm.id
 
     await prisma.patientSession.create({
       data: {
@@ -68,19 +82,18 @@ describe('GET /api/dashboard', () => {
   })
 
   it('returns correct monthly figures, excludes restock from adjustedExpenses', async () => {
-    const req = new NextRequest('http://localhost/api/dashboard')
-    const res = await GET(req)
+    const res = await GET()
     const data = await res.json()
 
-    expect(data.revenue).toBe(10000)
-    expect(data.inventoryCost).toBe(2)
-    expect(data.adjustedExpenses).toBe(3000)
-    expect(data.netProfit).toBe(6998)
+    // Assert deltas — test data adds 10000 revenue, 2 inventoryCost, 3000 adjustedExpenses
+    expect(data.revenue).toBe(baselineRevenue + 10000)
+    expect(data.inventoryCost).toBe(baselineInventoryCost + 2)
+    expect(data.adjustedExpenses).toBe(baselineAdjustedExpenses + 3000)
+    expect(data.netProfit).toBe(data.revenue - data.inventoryCost - data.adjustedExpenses)
   })
 
   it('includes low-stock medications', async () => {
-    const req = new NextRequest('http://localhost/api/dashboard')
-    const res = await GET(req)
+    const res = await GET()
     const data = await res.json()
 
     expect(data.lowStock.some((m: any) => m.id === medId)).toBe(true)
