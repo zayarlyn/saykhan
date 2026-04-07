@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DateTimePicker } from '@/components/ui/datetime-picker'
 import { MedicationSelector } from './medication-selector'
 import { PatientCombobox } from './patient-combobox'
 
@@ -81,15 +82,18 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 		handleSubmit,
 		control,
 		setValue,
+		watch,
 		formState: { errors, isSubmitting },
 	} = useForm<FormData>({
 		resolver: zodResolver(schema) as any,
 		defaultValues: {
-			date: new Date().toISOString().slice(0, 16),
+			date: new Date().toISOString(),
 			medications: [],
 			...defaultValues,
 		},
 	})
+
+	const dateValue = watch('date')
 
 	async function onSubmit(data: FormData) {
 		setError('')
@@ -187,7 +191,10 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 
 			<div className='space-y-1'>
 				<Label>Date & Time</Label>
-				<Input type='datetime-local' {...register('date')} />
+				<DateTimePicker
+					value={dateValue ? new Date(dateValue) : undefined}
+					onChange={(date) => setValue('date', date ? date.toISOString() : '')}
+				/>
 			</div>
 
 			<div className='space-y-1'>
