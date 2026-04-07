@@ -53,34 +53,56 @@ export default async function SessionDetailPage({
         {session.medications.length === 0 ? (
           <p className="text-sm text-gray-400">No medications recorded</p>
         ) : (
-          <div className="rounded border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-left">
-                <tr>
-                  <th className="px-4 py-2">Medication</th>
-                  <th className="px-4 py-2 text-right">Qty</th>
-                  <th className="px-4 py-2 text-right">Unit Price</th>
-                  <th className="px-4 py-2 text-right">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {session.medications.map(m => (
-                  <tr key={m.id} className="border-t">
-                    <td className="px-4 py-2">{m.medication.name}</td>
-                    <td className="px-4 py-2 text-right">{m.quantity}</td>
-                    <td className="px-4 py-2 text-right">{Number(m.sellingPrice).toLocaleString()}</td>
-                    <td className="px-4 py-2 text-right">{(m.quantity * Number(m.sellingPrice)).toLocaleString()}</td>
+          <>
+            {/* Mobile cards */}
+            <div className="md:hidden space-y-2">
+              {session.medications.map(m => (
+                <div key={m.id} className="rounded border bg-white p-3 text-sm">
+                  <p className="font-medium">{m.medication.name}</p>
+                  <p className="text-gray-500 mt-0.5">
+                    {m.quantity} × {Number(m.sellingPrice).toLocaleString()} ={' '}
+                    <span className="font-medium text-gray-800">
+                      {(m.quantity * Number(m.sellingPrice)).toLocaleString()} MMK
+                    </span>
+                  </p>
+                </div>
+              ))}
+              <div className="rounded border bg-gray-50 p-3 text-sm font-medium flex justify-between">
+                <span>Total</span>
+                <span>{total.toLocaleString()} MMK</span>
+              </div>
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block rounded border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 text-left">
+                  <tr>
+                    <th className="px-4 py-2">Medication</th>
+                    <th className="px-4 py-2 text-right">Qty</th>
+                    <th className="px-4 py-2 text-right">Unit Price</th>
+                    <th className="px-4 py-2 text-right">Subtotal</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot className="bg-gray-50 border-t font-medium">
-                <tr>
-                  <td colSpan={3} className="px-4 py-2 text-right">Total</td>
-                  <td className="px-4 py-2 text-right">{total.toLocaleString()}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {session.medications.map(m => (
+                    <tr key={m.id} className="border-t">
+                      <td className="px-4 py-2">{m.medication.name}</td>
+                      <td className="px-4 py-2 text-right">{m.quantity}</td>
+                      <td className="px-4 py-2 text-right">{Number(m.sellingPrice).toLocaleString()}</td>
+                      <td className="px-4 py-2 text-right">{(m.quantity * Number(m.sellingPrice)).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-gray-50 border-t font-medium">
+                  <tr>
+                    <td colSpan={3} className="px-4 py-2 text-right">Total</td>
+                    <td className="px-4 py-2 text-right">{total.toLocaleString()}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
