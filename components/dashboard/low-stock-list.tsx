@@ -17,7 +17,7 @@ export function LowStockList({ items }: { items: LowStockMed[] }) {
       <ul className="space-y-1">
         {items.map(med => (
           <li key={med.id} className="flex items-center justify-between text-sm">
-            <Link href="/inventory" className="hover:underline text-orange-700">{med.name}</Link>
+            <Link href={`/inventory/${med.id}/edit`} className="hover:underline text-orange-700">{med.name}</Link>
             <span className="text-orange-600">
               {med.stock} / {med.threshold} <Badge variant="outline" className="text-xs border-orange-300 text-orange-700">restock</Badge>
             </span>

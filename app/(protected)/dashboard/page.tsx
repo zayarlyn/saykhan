@@ -86,7 +86,7 @@ export default async function DashboardPage({
     `,
 		prisma.restockBatchItem.findMany({
 			where: { expiryDate: { not: null, lte: in30Days } },
-			include: { medication: { select: { name: true } }, restockBatch: { select: { id: true } } },
+			include: { medication: { select: { id: true, name: true } }, restockBatch: { select: { id: true } } },
 			orderBy: { expiryDate: 'asc' },
 		}),
 	])
@@ -135,6 +135,7 @@ export default async function DashboardPage({
 			<NearExpiredList
 				items={nearExpiredItems.map((item) => ({
 					id: item.id,
+					medicationId: item.medication.id,
 					medicationName: item.medication.name,
 					restockBatchId: item.restockBatch.id,
 					quantity: item.quantity,

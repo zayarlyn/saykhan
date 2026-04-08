@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 
 interface NearExpiredItem {
   id: string
+  medicationId: string
   medicationName: string
   restockBatchId: string
   quantity: number
@@ -25,7 +26,7 @@ export function NearExpiredList({ items }: { items: NearExpiredItem[] }) {
           const expired = days < 0
           return (
             <li key={item.id} className="flex items-center justify-between text-sm">
-              <Link href={`/inventory/restock/${item.restockBatchId}`} className="hover:underline text-yellow-700">
+              <Link href={`/inventory/${item.medicationId}/edit`} className="hover:underline text-yellow-700">
                 {item.medicationName}
               </Link>
               <span className="text-yellow-600 flex items-center gap-1.5">
