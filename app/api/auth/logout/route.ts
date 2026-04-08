@@ -1,10 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getIronSession } from 'iron-session'
-import { sessionOptions, SessionData } from '@/lib/session'
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
-export async function POST(req: NextRequest) {
-  const response = NextResponse.json({ ok: true })
-  const session = await getIronSession<SessionData>(req, response, sessionOptions)
-  session.destroy()
-  return response
+export async function POST() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  return NextResponse.json({ ok: true })
 }
