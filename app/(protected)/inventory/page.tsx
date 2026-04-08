@@ -10,23 +10,22 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
 
 	const medications = tab === 'medications' ? await prisma.medication.findMany({ include: { category: true }, orderBy: { name: 'asc' } }) : []
 
-	const withExpiry =
-		tab === 'medications'
-			? await Promise.all(
-					medications.map(async (med) => {
-						const nearestBatch = await prisma.restockBatchItem.findFirst({
-							where: { medicationId: med.id, expiryDate: { gte: new Date() } },
-							orderBy: { expiryDate: 'asc' },
-						})
-						return {
-							...med,
-							cost: Number(med.cost),
-							sellingPrice: Number(med.sellingPrice),
-							nearestExpiry: nearestBatch?.expiryDate?.toISOString() ?? null,
-						}
-					})
-			  )
-			: []
+	const withExpiry = tab === 'medications'
+		? await (async () => {
+				const expiryGroups = await prisma.restockBatchItem.groupBy({
+					by: ['medicationId'],
+					where: { medicationId: { in: medications.map(m => m.id) }, expiryDate: { gte: new Date() } },
+					_min: { expiryDate: true },
+				})
+				const expiryMap = Object.fromEntries(expiryGroups.map(g => [g.medicationId, g._min.expiryDate]))
+				return medications.map(med => ({
+					...med,
+					cost: Number(med.cost),
+					sellingPrice: Number(med.sellingPrice),
+					nearestExpiry: expiryMap[med.id]?.toISOString() ?? null,
+				}))
+			})()
+		: []
 
 	const restocks =
 		tab === 'restocks'
