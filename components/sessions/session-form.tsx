@@ -21,7 +21,7 @@ const schema = z.object({
 	paymentMethodId: z.string().min(1),
 	date: z.string().min(1),
 	description: z.string().optional(),
-	paymentAmount: z.coerce.number().nonnegative(),
+	paymentAmount: z.coerce.number().nonnegative('Amount required'),
 	medications: z.array(
 		z.object({
 			medicationId: z.string().min(1),
@@ -208,6 +208,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 				<div className='space-y-1'>
 					<Label>Amount (MMK)</Label>
 					<Input type='number' {...register('paymentAmount')} />
+					{errors.paymentAmount && <p className='text-xs text-red-500'>{errors.paymentAmount.message}</p>}
 				</div>
 				<div className='space-y-1'>
 					<Label>Payment Method</Label>
@@ -223,6 +224,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 							))}
 						</SelectContent>
 					</Select>
+					{errors.paymentMethodId && <p className='text-xs text-red-500'>Required</p>}
 				</div>
 			</div>
 

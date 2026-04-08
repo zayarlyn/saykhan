@@ -6,7 +6,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params
   const med = await prisma.medication.findUnique({
     where: { id },
-    include: { category: true },
+    include: {
+      category: true,
+      restockItems: {
+        include: { restockBatch: { select: { date: true } } },
+        orderBy: { restockBatch: { date: 'desc' } },
+      },
+    },
   })
   if (!med) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json(med)

@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker'
 
 const schema = z.object({
-  categoryId: z.string().optional(),
+  categoryId: z.string().min(1, 'Category required'),
   amount: z.coerce.number().positive(),
   description: z.string().optional(),
   date: z.string().min(1),
@@ -44,12 +44,13 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
       <div className="space-y-1">
         <Label>Category</Label>
-        <Select onValueChange={(v: string | null) => setValue('categoryId', v ?? undefined)}>
-          <SelectTrigger><SelectValue placeholder="Select category (optional)" /></SelectTrigger>
+        <Select onValueChange={(v: string | null) => setValue('categoryId', v ?? '')}>
+          <SelectTrigger><SelectValue placeholder="Select category…" /></SelectTrigger>
           <SelectContent>
             {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
+        {errors.categoryId && <p className="text-xs text-red-500">{errors.categoryId.message}</p>}
       </div>
       <div className="space-y-1">
         <Label>Amount</Label>

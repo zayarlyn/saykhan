@@ -4,10 +4,13 @@ import { BackButton } from '@/components/layout/back-button'
 
 export default async function RestockDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ highlight?: string }>
 }) {
   const { id } = await params
+  const { highlight } = await searchParams
   const batch = await prisma.restockBatch.findUnique({
     where: { id },
     include: {
@@ -37,7 +40,11 @@ export default async function RestockDetailPage({
         {/* Mobile cards */}
         <div className="md:hidden space-y-2">
           {batch.items.map(item => (
-            <div key={item.id} className="rounded border bg-white p-3 text-sm">
+            <div
+              key={item.id}
+              id={item.id}
+              className={`rounded border p-3 text-sm transition-colors ${item.id === highlight ? 'bg-[#eef0fb] border-[#2e37a4] border-2' : 'bg-white'}`}
+            >
               <p className="font-medium">{item.medication.name}</p>
               <div className="mt-1 space-y-0.5 text-gray-500">
                 <p>Qty: <span className="text-gray-800">{item.quantity}</span></p>
@@ -71,7 +78,11 @@ export default async function RestockDetailPage({
             </thead>
             <tbody>
               {batch.items.map(item => (
-                <tr key={item.id} className="border-t">
+                <tr
+                  key={item.id}
+                  id={item.id}
+                  className={`border-t transition-colors ${item.id === highlight ? 'bg-[#eef0fb]' : ''}`}
+                >
                   <td className="px-4 py-2">{item.medication.name}</td>
                   <td className="px-4 py-2 text-right">{item.quantity}</td>
                   <td className="px-4 py-2 text-right">{Number(item.costPerUnit).toLocaleString()}</td>
