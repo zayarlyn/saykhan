@@ -2,15 +2,16 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
 const PRESETS = [
-  { id: 'today', label: 'Today' },
-  { id: 'yesterday', label: 'Yesterday' },
-  { id: 'this-week', label: 'This Week' },
-  { id: 'this-month', label: 'This Month' },
-  { id: 'last-month', label: 'Last Month' },
-  { id: 'last-30', label: 'Last 30 Days' },
+  { id: 'today', label: 'Today', href: '/dashboard?preset=today' },
+  { id: 'yesterday', label: 'Yesterday', href: '/dashboard?preset=yesterday' },
+  { id: 'this-week', label: 'This Week', href: '/dashboard?preset=this-week' },
+  { id: 'this-month', label: 'This Month', href: '/dashboard' },
+  { id: 'last-month', label: 'Last Month', href: '/dashboard?preset=last-month' },
+  { id: 'last-30', label: 'Last 30 Days', href: '/dashboard?preset=last-30' },
 ]
 
 interface Props {
@@ -26,11 +27,6 @@ export function DateRangeSelector({ activePreset, from, to }: Props) {
   const [customFrom, setCustomFrom] = useState(from ?? '')
   const [customTo, setCustomTo] = useState(to ?? '')
 
-  function selectPreset(id: string) {
-    setShowCustom(false)
-    router.push(id === 'this-month' ? '/dashboard' : `/dashboard?preset=${id}`)
-  }
-
   function applyCustom() {
     if (customFrom && customTo) {
       router.push(`/dashboard?from=${customFrom}&to=${customTo}`)
@@ -41,9 +37,10 @@ export function DateRangeSelector({ activePreset, from, to }: Props) {
     <div className="space-y-2">
       <div className="flex flex-wrap gap-1.5">
         {PRESETS.map(p => (
-          <button
+          <Link
             key={p.id}
-            onClick={() => selectPreset(p.id)}
+            href={p.href}
+            onClick={() => setShowCustom(false)}
             className={cn(
               'px-3 py-1 text-sm rounded-full border transition-colors',
               activePreset === p.id
@@ -52,7 +49,7 @@ export function DateRangeSelector({ activePreset, from, to }: Props) {
             )}
           >
             {p.label}
-          </button>
+          </Link>
         ))}
         <button
           onClick={() => setShowCustom(v => !v)}
