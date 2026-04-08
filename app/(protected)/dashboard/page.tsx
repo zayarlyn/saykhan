@@ -38,9 +38,9 @@ export default async function DashboardPage({
     }),
   ])
 
-  const revenue = sessions.reduce((sum, s) => sum + Number(s.paymentAmount), 0)
-  const inventoryCost = sessions.reduce((sum, s) =>
-    sum + s.medications.reduce((mSum, m) => mSum + m.quantity * Number(m.unitCost), 0), 0
+  const revenue = sessions.reduce((sum: number, s) => sum + Number(s.paymentAmount), 0)
+  const inventoryCost = sessions.reduce((sum: number, s) =>
+    sum + s.medications.reduce((mSum: number, m) => mSum + m.quantity * Number(m.unitCost), 0), 0
   )
   const adjustedExpenses = expenses.filter(e => e.type === 'MANUAL').reduce((sum, e) => sum + Number(e.amount), 0)
   const netProfit = revenue - inventoryCost - adjustedExpenses
