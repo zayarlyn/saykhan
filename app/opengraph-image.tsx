@@ -18,6 +18,7 @@ export default function Image() {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 40,
+          fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
       >
         {/* Icon badge */}
@@ -30,22 +31,10 @@ export default function Image() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            fontSize: 80,
           }}
         >
-          <svg
-            width="96"
-            height="96"
-            viewBox="0 0 24 24"
-            stroke="white"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            fill="none"
-          >
-            <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
-            <path d="M8 15a6 6 0 0 0 6 6h0a6 6 0 0 0 6-6v-3" />
-            <circle cx="20" cy="10" r="2" />
-          </svg>
+          🩺
         </div>
 
         {/* Text */}
