@@ -1,15 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Stethoscope } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 export function LoginForm({ clinicName }: { clinicName: string }) {
+  const router = useRouter()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
+  const [useMagicLink, setUseMagicLink] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -17,19 +20,29 @@ export function LoginForm({ clinicName }: { clinicName: string }) {
     setError('')
     const form = e.currentTarget
     const email = (form.elements.namedItem('email') as HTMLInputElement).value
-
     const supabase = createClient()
-    const { error: err } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    })
 
-    if (err) {
-      setError(err.message)
-      setLoading(false)
+    if (useMagicLink) {
+      const { error: err } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      })
+      if (err) {
+        setError(err.message)
+        setLoading(false)
+      } else {
+        setSent(true)
+        setLoading(false)
+      }
     } else {
-      setSent(true)
-      setLoading(false)
+      const password = (form.elements.namedItem('password') as HTMLInputElement).value
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+      if (err) {
+        setError(err.message)
+        setLoading(false)
+      } else {
+        router.push('/dashboard')
+      }
     }
   }
 
@@ -62,13 +75,13 @@ export function LoginForm({ clinicName }: { clinicName: string }) {
           <>
             <div className='mb-5'>
               <h1 className='text-[20px] font-bold text-[#0a1b39] leading-[24px]'>Sign In</h1>
-              <p className='text-[14px] text-[#6c7688] mt-1 leading-[21px]'>Enter your email to receive a magic link</p>
+              <p className='text-[14px] text-[#6c7688] mt-1 leading-[21px]'>
+                {useMagicLink ? 'Enter your email to receive a magic link' : 'Enter your credentials to access the dashboard'}
+              </p>
             </div>
             <form onSubmit={handleSubmit} className='space-y-4'>
               <div className='space-y-1'>
-                <Label htmlFor='email' className='text-[13px] font-medium text-[#0a1b39]'>
-                  Email
-                </Label>
+                <Label htmlFor='email' className='text-[13px] font-medium text-[#0a1b39]'>Email</Label>
                 <Input
                   id='email'
                   name='email'
@@ -77,15 +90,34 @@ export function LoginForm({ clinicName }: { clinicName: string }) {
                   className='h-9 text-[14px] border-[#e7e8eb] shadow-[0px_1px_1px_0px_rgba(0,0,0,0.05)] focus-visible:ring-[#2e37a4] placeholder:text-[#9da4b0]'
                 />
               </div>
+              {!useMagicLink && (
+                <div className='space-y-1'>
+                  <Label htmlFor='password' className='text-[13px] font-medium text-[#0a1b39]'>Password</Label>
+                  <Input
+                    id='password'
+                    name='password'
+                    type='password'
+                    required
+                    className='h-9 text-[14px] border-[#e7e8eb] shadow-[0px_1px_1px_0px_rgba(0,0,0,0.05)] focus-visible:ring-[#2e37a4] placeholder:text-[#9da4b0]'
+                  />
+                </div>
+              )}
               {error && <p className='text-[13px] text-[#ef1e1e] bg-red-50 px-3 py-2 rounded-md'>{error}</p>}
               <button
                 type='submit'
                 disabled={loading}
                 className='w-full h-[38px] bg-[#2e37a4] hover:bg-[#252d8a] text-white text-[14px] font-medium rounded-md transition-colors disabled:opacity-60 mt-1'
               >
-                {loading ? 'Sending…' : 'Send Magic Link'}
+                {loading ? (useMagicLink ? 'Sending…' : 'Signing in…') : (useMagicLink ? 'Send Magic Link' : 'Sign In')}
               </button>
             </form>
+            <button
+              type='button'
+              onClick={() => { setError(''); setUseMagicLink(v => !v) }}
+              className='mt-4 w-full text-[13px] text-[#2e37a4] hover:underline text-center'
+            >
+              {useMagicLink ? 'Sign in with password instead' : 'Send magic link instead'}
+            </button>
           </>
         )}
       </div>
