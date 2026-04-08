@@ -1,25 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getIronSession } from 'iron-session'
-import { sessionOptions, SessionData } from '@/lib/session'
+import { createServerClient } from '@supabase/ssr'
 
 export async function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl
 
-	if (pathname.startsWith('/api/auth')) return NextResponse.next()
+	// Exempt the callback route so the session can be established
+	if (pathname.startsWith('/auth/callback')) return NextResponse.next()
 
-	const response = NextResponse.next()
-	const session = await getIronSession<SessionData>(request, response, sessionOptions)
+	let response = NextResponse.next()
 
+	const supabase = createServerClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+		{
+			cookies: {
+				getAll: () => request.cookies.getAll(),
+				setAll: (cookiesToSet) =>
+					cookiesToSet.forEach(({ name, value, options }) =>
+						response.cookies.set(name, value, options)
+					),
+			},
+		}
+	)
+
+	const { data: { user } } = await supabase.auth.getUser()
 	const isLoginPage = pathname === '/login'
 
-	if (!session.isLoggedIn && !isLoginPage) {
+	if (!user && !isLoginPage) {
 		if (pathname.startsWith('/api/')) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
 		return NextResponse.redirect(new URL('/login', request.url))
 	}
 
-	if (session.isLoggedIn && isLoginPage) {
+	if (user && isLoginPage) {
 		return NextResponse.redirect(new URL('/dashboard', request.url))
 	}
 
@@ -27,5 +41,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-	matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+	matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg).*)'],
 }
