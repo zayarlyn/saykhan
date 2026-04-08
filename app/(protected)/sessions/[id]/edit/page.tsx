@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { SessionForm } from '@/components/sessions/session-form'
+import type { SessionFormData } from '@/lib/validations/session'
 import { buttonVariants } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
 
@@ -44,7 +45,7 @@ export default async function EditSessionPage({
     })),
   }
 
-  async function handleSubmit(data: any) {
+  async function handleSubmit(data: SessionFormData) {
     'use server'
     const { cookies } = await import('next/headers')
     const cookieStore = await cookies()

@@ -2,14 +2,14 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { MedicationForm } from '@/components/inventory/medication-form'
+import { MedicationForm, type MedicationFormData } from '@/components/inventory/medication-form'
 import { BackButton } from '@/components/layout/back-button'
 
 export default function EditMedicationPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [categories, setCategories] = useState([])
-  const [defaultValues, setDefaultValues] = useState<any>(null)
+  const [defaultValues, setDefaultValues] = useState<MedicationFormData | null>(null)
 
   useEffect(() => {
     Promise.all([
@@ -28,7 +28,7 @@ export default function EditMedicationPage() {
     })
   }, [id])
 
-  async function handleSubmit(data: any) {
+  async function handleSubmit(data: MedicationFormData) {
     const res = await fetch(`/api/medications/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },

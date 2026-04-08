@@ -18,3 +18,19 @@ export const createSessionSchema = z.object({
 })
 
 export const updateSessionSchema = createSessionSchema
+
+export type SessionFormData = {
+  patientId: string
+  newPatientName?: string
+  serviceTypeId: string
+  paymentMethodId: string
+  date: string
+  description?: string
+  paymentAmount: number
+  medications: Array<{
+    medicationId: string
+    quantity: number
+    unitCost: number
+    sellingPrice: number
+  }>
+}

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -85,7 +85,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 		watch,
 		formState: { errors, isSubmitting },
 	} = useForm<FormData>({
-		resolver: zodResolver(schema) as any,
+		resolver: zodResolver(schema) as Resolver<FormData>,
 		defaultValues: {
 			date: new Date().toISOString(),
 			medications: [],
@@ -101,8 +101,8 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 		if (onSubmitOverride) {
 			try {
 				await onSubmitOverride(data)
-			} catch (e: any) {
-				setError(e?.message ?? 'Failed to save session')
+			} catch (e: unknown) {
+				setError(e instanceof Error ? e.message : 'Failed to save session')
 			}
 			return
 		}
@@ -202,7 +202,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 				<Textarea {...register('description')} rows={2} />
 			</div>
 
-			<MedicationSelector control={control as any} medications={medications} setValue={setValue} />
+			<MedicationSelector control={control} medications={medications} setValue={setValue} />
 
 			<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 				<div className='space-y-1'>

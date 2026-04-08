@@ -1,6 +1,7 @@
 'use client'
 
-import { useFieldArray, Control } from 'react-hook-form'
+import { useFieldArray, Control, UseFormSetValue } from 'react-hook-form'
+import type { SessionFormData } from '@/lib/validations/session'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,9 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface Medication { id: string; name: string; cost: number; sellingPrice: number }
 
 export function MedicationSelector({ control, medications, setValue }: {
-  control: Control<any>
+  control: Control<SessionFormData>
   medications: Medication[]
-  setValue: any
+  setValue: UseFormSetValue<SessionFormData>
 }) {
   const { fields, append, remove } = useFieldArray({ control, name: 'medications' })
 

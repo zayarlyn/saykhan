@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { MedicationForm } from '@/components/inventory/medication-form'
+import { MedicationForm, type MedicationFormData } from '@/components/inventory/medication-form'
 import { BackButton } from '@/components/layout/back-button'
 
 export default function NewMedicationPage() {
@@ -13,7 +13,7 @@ export default function NewMedicationPage() {
     fetch('/api/settings/medication-category').then(r => r.json()).then(setCategories)
   }, [])
 
-  async function handleSubmit(data: any) {
+  async function handleSubmit(data: MedicationFormData) {
     const res = await fetch('/api/medications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

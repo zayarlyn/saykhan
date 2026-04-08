@@ -29,7 +29,7 @@ const schema = z.object({
 	threshold: z.coerce.number().int().nonnegative(),
 })
 
-type FormData = z.infer<typeof schema>
+export type MedicationFormData = z.infer<typeof schema>
 
 interface Category {
 	id: string
@@ -38,8 +38,8 @@ interface Category {
 
 interface Props {
 	categories: Category[]
-	defaultValues?: Partial<FormData>
-	onSubmit: (data: FormData) => Promise<void>
+	defaultValues?: Partial<MedicationFormData>
+	onSubmit: (data: MedicationFormData) => Promise<void>
 	submitLabel?: string
 }
 
@@ -49,8 +49,8 @@ export function MedicationForm({ categories, defaultValues, onSubmit, submitLabe
 		handleSubmit,
 		setValue,
 		formState: { errors, isSubmitting },
-	} = useForm<FormData>({
-		resolver: zodResolver(schema) as Resolver<FormData>,
+	} = useForm<MedicationFormData>({
+		resolver: zodResolver(schema) as Resolver<MedicationFormData>,
 		defaultValues: { threshold: 10, unitType: 'pcs', ...defaultValues },
 	})
 

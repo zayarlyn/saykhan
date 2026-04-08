@@ -114,8 +114,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         },
       })
     })
-  } catch (e: any) {
-    if (e?.message?.startsWith('Insufficient stock')) {
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message.startsWith('Insufficient stock')) {
       return NextResponse.json({ error: e.message }, { status: 422 })
     }
     throw e
