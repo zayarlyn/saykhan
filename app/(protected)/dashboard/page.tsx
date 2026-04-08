@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { SummaryCards } from '@/components/dashboard/summary-cards'
