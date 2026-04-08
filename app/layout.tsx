@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Suspense } from 'react'
 import { NavigationProgress } from '@/components/layout/navigation-progress'
+import { VercelToolbar } from '@vercel/toolbar/next'
 import './globals.css'
 
 const inter = Inter({
@@ -50,6 +51,7 @@ export default function RootLayout({
 					<NavigationProgress />
 				</Suspense>
 				{children}
+				{process.env.NODE_ENV === 'development' && <VercelToolbar />}
 			</body>
 		</html>
 	)
