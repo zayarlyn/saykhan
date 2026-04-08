@@ -78,8 +78,8 @@ model RestockBatchItem {
 
 model PatientSession {
   id              String              @id @default(cuid())
-  patientId       String
-  patient         Patient             @relation(fields: [patientId], references: [id])
+  patientId       String?
+  patient         Patient?            @relation(fields: [patientId], references: [id])
   serviceTypeId   String
   serviceType     ServiceType         @relation(fields: [serviceTypeId], references: [id])
   paymentMethodId String

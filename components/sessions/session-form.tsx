@@ -15,7 +15,7 @@ import { MedicationSelector } from './medication-selector'
 import { PatientCombobox } from './patient-combobox'
 
 const schema = z.object({
-	patientId: z.string().min(1, 'Patient required'),
+	patientId: z.string().min(1).optional().nullable(),
 	newPatientName: z.string().optional(),
 	serviceTypeId: z.string().min(1),
 	paymentMethodId: z.string().min(1),
@@ -59,7 +59,7 @@ interface Props {
 	paymentMethods: PaymentMethod[]
 	medications: Medication[]
 	defaultValues?: {
-		patientId: string
+		patientId?: string | null
 		patientName: string
 		serviceTypeId: string
 		paymentMethodId: string
@@ -107,7 +107,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 			return
 		}
 
-		let patientId = data.patientId
+		let patientId: string | null = data.patientId ?? null
 
 		if (isNewPatient && data.newPatientName) {
 			const res = await fetch('/api/patients', {
@@ -121,9 +121,8 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 			}
 			const patient = await res.json()
 			patientId = patient.id
-		} else if (!patientId || patientId === 'new') {
-			setError('Please select or create a patient')
-			return
+		} else if (patientId === 'new') {
+			patientId = null
 		}
 
 		const body = {
@@ -153,10 +152,10 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className='space-y-5 max-w-xl w-full'>
 			<div className='space-y-1'>
-				<Label>Patient</Label>
+				<Label>Patient <span className='text-gray-400 font-normal text-xs'>(optional — pharmacy sale)</span></Label>
 				<PatientCombobox
 					patients={patients}
-					defaultPatient={defaultValues ? { id: defaultValues.patientId, name: defaultValues.patientName } : undefined}
+					defaultPatient={defaultValues?.patientId ? { id: defaultValues.patientId, name: defaultValues.patientName } : undefined}
 					onSelect={(patientId, newPatientName) => {
 						if (newPatientName) {
 							setIsNewPatient(true)
@@ -165,11 +164,10 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 						} else {
 							setIsNewPatient(false)
 							setValue('newPatientName', undefined)
-							setValue('patientId', patientId)
+							setValue('patientId', patientId || null)
 						}
 					}}
 				/>
-				{errors.patientId && <p className='text-xs text-red-500'>{errors.patientId.message}</p>}
 			</div>
 
 			<div className='space-y-1'>

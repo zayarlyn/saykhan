@@ -8,7 +8,7 @@ export const sessionMedicationSchema = z.object({
 })
 
 export const createSessionSchema = z.object({
-  patientId: z.string().min(1),
+  patientId: z.string().min(1).optional().nullable(),
   serviceTypeId: z.string().min(1),
   paymentMethodId: z.string().min(1),
   date: z.string().datetime(),
@@ -20,7 +20,7 @@ export const createSessionSchema = z.object({
 export const updateSessionSchema = createSessionSchema
 
 export type SessionFormData = {
-  patientId: string
+  patientId?: string | null
   newPatientName?: string
   serviceTypeId: string
   paymentMethodId: string

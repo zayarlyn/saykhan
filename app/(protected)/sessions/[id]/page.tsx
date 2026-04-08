@@ -32,9 +32,9 @@ export default async function SessionDetailPage({
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">
-            <Link href={`/patients/${session.patient.id}`} className="hover:underline">
-              {session.patient.name}
-            </Link>
+            {session.patient
+              ? <Link href={`/patients/${session.patient.id}`} className="hover:underline">{session.patient.name}</Link>
+              : <span className="text-gray-400">Walk-in</span>}
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
             {session.serviceType.name} &middot;{' '}

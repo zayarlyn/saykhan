@@ -30,8 +30,8 @@ export default async function EditSessionPage({
   if (!session) notFound()
 
   const defaultValues = {
-    patientId: session.patientId,
-    patientName: session.patient.name,
+    patientId: session.patientId ?? null,
+    patientName: session.patient?.name ?? '',
     serviceTypeId: session.serviceTypeId,
     paymentMethodId: session.paymentMethodId,
     date: new Date(session.date).toISOString(),

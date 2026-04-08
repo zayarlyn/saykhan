@@ -10,7 +10,7 @@ const PAGE_SIZE = 20
 
 interface Session {
 	id: string
-	patient: { id: string; name: string }
+	patient: { id: string; name: string } | null
 	serviceType: { name: string }
 	paymentMethod: { name: string }
 	date: string
@@ -23,7 +23,7 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
 	const [page, setPage] = useState(1)
 	const router = useRouter()
 
-	const filtered = sessions.filter((s) => s.patient.name.toLowerCase().includes(search.toLowerCase()) || s.serviceType.name.toLowerCase().includes(search.toLowerCase()))
+	const filtered = sessions.filter((s) => (s.patient?.name ?? 'Walk-in').toLowerCase().includes(search.toLowerCase()) || s.serviceType.name.toLowerCase().includes(search.toLowerCase()))
 	const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
 	const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
@@ -41,7 +41,7 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
 				{paged.map((s) => (
 					<Link key={s.id} href={`/sessions/${s.id}`} className='block bg-white border rounded-lg p-3 space-y-1.5 hover:bg-gray-50'>
 						<div className='flex items-start justify-between gap-2'>
-							<span className='font-medium text-sm'>{s.patient.name}</span>
+							<span className='font-medium text-sm'>{s.patient?.name ?? 'Walk-in'}</span>
 							<span className='text-sm font-semibold shrink-0'>{Number(s.paymentAmount).toLocaleString()}</span>
 						</div>
 						<div className='text-xs text-gray-500 flex items-center justify-between'>
@@ -71,9 +71,9 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
 						{paged.map((s) => (
 							<tr key={s.id} className='border-t hover:bg-gray-50 cursor-pointer' onClick={() => router.push(`/sessions/${s.id}`)}>
 								<td className='px-4 py-2' onClick={(e) => e.stopPropagation()}>
-									<Link href={`/patients/${s.patient.id}`} className='hover:underline'>
-										{s.patient.name}
-									</Link>
+									{s.patient
+										? <Link href={`/patients/${s.patient.id}`} className='hover:underline'>{s.patient.name}</Link>
+										: <span className='text-gray-400'>Walk-in</span>}
 								</td>
 								<td className='px-4 py-2'>{s.serviceType.name}</td>
 								<td className='px-4 py-2 text-gray-500 text-xs'>{s.medications.map((m) => `${m.medication.name} ×${m.quantity}`).join(', ') || '—'}</td>
