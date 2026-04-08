@@ -22,7 +22,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 			include: { medications: true },
 		}),
 		prisma.expense.findMany({
-			where: { date: { gte: startOfMonth, lte: endOfMonth } },
+			where: { date: { gte: startOfMonth, lte: endOfMonth }, type: 'MANUAL' },
+			include: { category: { select: { name: true } } },
 		}),
 		prisma.$queryRaw<Array<{ id: string; name: string; stock: number; threshold: number }>>`
       SELECT id, name, stock, threshold FROM "Medication" WHERE stock <= threshold
@@ -38,8 +39,32 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 	type SessionMed = Session['medications'][number]
 	const revenue = sessions.reduce((sum: number, s: Session) => sum + Number(s.paymentAmount), 0)
 	const inventoryCost = sessions.reduce((sum: number, s: Session) => sum + s.medications.reduce((mSum: number, m: SessionMed) => mSum + m.quantity * Number(m.unitCost), 0), 0)
-	const adjustedExpenses = expenses.filter((e) => e.type === 'MANUAL').reduce((sum, e) => sum + Number(e.amount), 0)
+	const adjustedExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0)
 	const netProfit = revenue - inventoryCost - adjustedExpenses
+
+	// Revenue details
+	const sessionCount = sessions.length
+	const maxSessionAmount = sessions.length > 0 ? Math.max(...sessions.map(s => Number(s.paymentAmount))) : 0
+	const patientIds = [...new Set(sessions.map(s => s.patientId))]
+	const patientFirstSessions = patientIds.length > 0
+		? await prisma.patientSession.groupBy({
+				by: ['patientId'],
+				where: { patientId: { in: patientIds } },
+				_min: { date: true },
+		  })
+		: []
+	const newPatientCount = patientFirstSessions.filter(p => p._min.date! >= startOfMonth).length
+
+	// Inventory cost details
+	const uniqueMedCount = new Set(sessions.flatMap(s => s.medications.map(m => m.medicationId))).size
+
+	// Expense details
+	const categoryTotals = expenses.reduce((acc, e) => {
+		const key = e.category?.name ?? 'Uncategorized'
+		acc[key] = (acc[key] ?? 0) + Number(e.amount)
+		return acc
+	}, {} as Record<string, number>)
+	const topExpenseCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] ?? null
 
 	return (
 		<div className='space-y-6'>
@@ -56,7 +81,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 					expiryDate: item.expiryDate!,
 				}))}
 			/>
-			<SummaryCards stats={{ revenue, inventoryCost, adjustedExpenses, netProfit }} />
+			<SummaryCards stats={{
+				revenue, inventoryCost, adjustedExpenses, netProfit,
+				sessionCount, maxSessionAmount, newPatientCount,
+				uniqueMedCount,
+				topExpenseCategory,
+			}} />
 		</div>
 	)
 }
