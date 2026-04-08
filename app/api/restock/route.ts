@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       items.map(item =>
         tx.medication.update({
           where: { id: item.medicationId },
-          data: { stock: { increment: item.quantity } },
+          data: { stock: { increment: item.quantity }, cost: item.costPerUnit },
         })
       )
     )

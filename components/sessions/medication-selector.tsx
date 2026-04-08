@@ -29,27 +29,15 @@ export function MedicationSelector({ control, medications, setValue }: {
     <div className="space-y-3">
       <Label>Medications Used</Label>
       {fields.map((field, i) => (
-        <div key={field.id} className="border rounded-lg p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-gray-500">Item {i + 1}</span>
-            <Button type="button" variant="ghost" size="sm" className="h-6 text-xs" onClick={() => remove(i)}>Remove</Button>
-          </div>
+        <div key={field.id} className="flex items-center gap-2">
           <Select onValueChange={(v: string | null) => v && handleMedChange(i, v)}>
-            <SelectTrigger className="w-full"><SelectValue placeholder="Select medication…" /></SelectTrigger>
+            <SelectTrigger className="flex-1"><SelectValue placeholder="Select medication…" /></SelectTrigger>
             <SelectContent>
               {medications.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
             </SelectContent>
           </Select>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Qty</Label>
-              <Input type="number" placeholder="Quantity" {...control.register(`medications.${i}.quantity`, { valueAsNumber: true })} />
-            </div>
-            <div>
-              <Label className="text-xs">Unit Cost</Label>
-              <Input type="number" step="0.01" placeholder="Cost" {...control.register(`medications.${i}.unitCost`, { valueAsNumber: true })} />
-            </div>
-          </div>
+          <Input type="number" placeholder="Qty" className="w-20" {...control.register(`medications.${i}.quantity`, { valueAsNumber: true })} />
+          <Button type="button" variant="ghost" size="sm" className="h-9 px-2 text-xs shrink-0" onClick={() => remove(i)}>✕</Button>
         </div>
       ))}
       <Button type="button" variant="outline" size="sm"
