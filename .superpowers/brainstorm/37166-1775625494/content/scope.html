@@ -1,0 +1,19 @@
+<h2>Who needs to log in?</h2>
+<p class="subtitle">This shapes the entire auth design — let's start here.</p>
+
+<div class="options">
+  <div class="option" data-choice="single" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Single admin (same as today)</h3>
+      <p>One account, just swap the auth backend from bcrypt+iron-session to Supabase. Simpler migration, no role changes needed.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="multi" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Multiple users (clinic staff)</h3>
+      <p>Different staff members each have their own login. Could include roles (admin vs. read-only) down the road.</p>
+    </div>
+  </div>
+</div>

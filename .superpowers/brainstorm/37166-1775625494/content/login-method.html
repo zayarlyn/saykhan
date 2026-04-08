@@ -1,0 +1,26 @@
+<h2>How should the admin log in?</h2>
+<p class="subtitle">Supabase supports several methods — pick what fits a single-admin clinic app.</p>
+
+<div class="options">
+  <div class="option" data-choice="email-password" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Email + Password</h3>
+      <p>Closest to what you have today. Admin enters email and password. Credentials managed in Supabase dashboard.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="magic-link" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Magic Link (email OTP)</h3>
+      <p>Admin enters email, receives a one-time login link. No password to remember or leak. Requires email access each login.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="oauth" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>OAuth (Google / GitHub)</h3>
+      <p>Admin logs in with an existing Google or GitHub account. Simplest for the admin — no new credentials needed.</p>
+    </div>
+  </div>
+</div>

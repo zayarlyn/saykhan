@@ -1,0 +1,19 @@
+<h2>Are you moving the database to Supabase too?</h2>
+<p class="subtitle">Supabase provides hosted Postgres — you can use just the auth, or move everything.</p>
+
+<div class="options">
+  <div class="option" data-choice="auth-only" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Auth only</h3>
+      <p>Keep your own Postgres. Supabase handles login/session, your DB stays where it is. Less migration work.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="full" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Auth + Supabase Postgres</h3>
+      <p>Move everything to Supabase — auth and DB on one platform. Simpler infra, one dashboard to manage.</p>
+    </div>
+  </div>
+</div>

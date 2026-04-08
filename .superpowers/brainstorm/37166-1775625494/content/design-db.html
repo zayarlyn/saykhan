@@ -1,0 +1,43 @@
+<h2>Design: Database Migration</h2>
+<p class="subtitle">Moving from your current Postgres to Supabase Postgres</p>
+
+<div style="display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto">
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div class="label">Step 1 — Create Supabase project</div>
+    <p style="font-size:13px;color:var(--text);margin:8px 0 0">Create a new project at supabase.com. Get the Postgres connection string from <strong>Project Settings → Database → Connection string (URI)</strong>. Enable email auth + magic links under <strong>Authentication → Providers</strong>. Create the admin user under <strong>Authentication → Users</strong>.</p>
+  </div>
+
+  <div style="text-align:center;color:var(--muted);font-size:20px">↓</div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div class="label">Step 2 — Run Prisma migrations on Supabase DB</div>
+    <p style="font-size:13px;color:var(--text);margin:8px 0 0">Point <code>DATABASE_URL</code> at the Supabase connection string and run:</p>
+    <div style="background:#111;border-radius:6px;padding:10px;font-family:monospace;font-size:12px;color:#e2e8f0;margin-top:8px">npx prisma migrate deploy</div>
+    <p style="font-size:12px;color:var(--muted);margin:6px 0 0">This applies all existing migrations to the fresh Supabase database — no schema rewrite needed.</p>
+  </div>
+
+  <div style="text-align:center;color:var(--muted);font-size:20px">↓</div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div class="label">Step 3 — Migrate existing data (if needed)</div>
+    <p style="font-size:13px;color:var(--text);margin:8px 0 0">If you have production data to keep, dump it from your current DB and restore it to Supabase:</p>
+    <div style="background:#111;border-radius:6px;padding:10px;font-family:monospace;font-size:12px;color:#e2e8f0;margin-top:8px">pg_dump $OLD_DATABASE_URL | psql $SUPABASE_DATABASE_URL</div>
+    <p style="font-size:12px;color:var(--muted);margin:6px 0 0">Skip this step if you're starting fresh or using the demo seed.</p>
+  </div>
+
+  <div style="text-align:center;color:var(--muted);font-size:20px">↓</div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div class="label">Step 4 — Update env vars in Vercel</div>
+    <p style="font-size:13px;color:var(--text);margin:8px 0 0">Replace old vars with:</p>
+    <ul style="font-size:12px;color:var(--text);margin:8px 0 0;padding-left:16px;line-height:2">
+      <li><code>DATABASE_URL</code> → Supabase Postgres URI</li>
+      <li><code>NEXT_PUBLIC_SUPABASE_URL</code> → from Supabase dashboard</li>
+      <li><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> → from Supabase dashboard</li>
+    </ul>
+  </div>
+
+</div>
+
+<p style="text-align:center;margin-top:20px;font-size:13px;color:var(--muted)">Does this migration plan look right? Reply in terminal.</p>

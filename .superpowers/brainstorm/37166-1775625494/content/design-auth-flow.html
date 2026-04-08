@@ -1,0 +1,42 @@
+<h2>Design: Auth Flow</h2>
+<p class="subtitle">How login works with Supabase magic link + @supabase/ssr</p>
+
+<div style="display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto">
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div class="label">Step 1 — Admin visits /login</div>
+    <div class="mockup" style="margin-top:8px">
+      <div class="mockup-header">Login Page</div>
+      <div class="mockup-body" style="padding:20px;text-align:center">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Enter your email to receive a login link</div>
+        <div class="mock-input" style="width:260px;margin:0 auto 12px">admin@clinic.com</div>
+        <div class="mock-button">Send Magic Link</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:12px;font-style:italic">→ Calls supabase.auth.signInWithOtp({ email })</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:var(--muted);font-size:20px">↓</div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div class="label">Step 2 — Supabase sends email</div>
+    <p style="font-size:13px;color:var(--text);margin:8px 0 0">Page shows "Check your email" confirmation. No password ever stored or transmitted.</p>
+  </div>
+
+  <div style="text-align:center;color:var(--muted);font-size:20px">↓</div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div class="label">Step 3 — Admin clicks link → /auth/callback?code=...</div>
+    <p style="font-size:13px;color:var(--text);margin:8px 0 0">New route handler calls <code>supabase.auth.exchangeCodeForSession(code)</code>. Session written to cookie. Redirect to /dashboard.</p>
+  </div>
+
+  <div style="text-align:center;color:var(--muted);font-size:20px">↓</div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div class="label">Step 4 — proxy.ts guards all routes</div>
+    <p style="font-size:13px;color:var(--text);margin:8px 0 0">On every request, the proxy creates a Supabase server client and calls <code>supabase.auth.getUser()</code>. If no valid session → redirect to /login or 401. Replaces iron-session check entirely.</p>
+  </div>
+
+</div>
+
+<p style="text-align:center;margin-top:20px;font-size:13px;color:var(--muted)">Does this flow look right? Reply in terminal to continue to the next section.</p>

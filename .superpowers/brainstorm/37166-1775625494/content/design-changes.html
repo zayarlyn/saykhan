@@ -1,0 +1,50 @@
+<h2>Design: Code Changes</h2>
+<p class="subtitle">What changes, what's deleted, what's new</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:860px;margin:0 auto">
+
+  <div style="background:var(--surface);border:1px solid #2a5c2a;border-radius:10px;padding:14px">
+    <div class="label" style="color:#4ade80">➕ New files</div>
+    <ul style="font-size:12px;margin:10px 0 0;padding-left:16px;line-height:2">
+      <li><code>lib/supabase/server.ts</code><br><span style="color:var(--muted)">Server-side client with cookie handling</span></li>
+      <li style="margin-top:6px"><code>lib/supabase/client.ts</code><br><span style="color:var(--muted)">Browser-side client for login page</span></li>
+      <li style="margin-top:6px"><code>app/auth/callback/route.ts</code><br><span style="color:var(--muted)">Exchanges magic link code for session</span></li>
+    </ul>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid #5c4a1a;border-radius:10px;padding:14px">
+    <div class="label" style="color:#fbbf24">✏️ Updated files</div>
+    <ul style="font-size:12px;margin:10px 0 0;padding-left:16px;line-height:2">
+      <li><code>proxy.ts</code><br><span style="color:var(--muted)">Swap iron-session → getUser()</span></li>
+      <li style="margin-top:6px"><code>app/(auth)/login/page.tsx</code><br><span style="color:var(--muted)">Email OTP form instead of user/pass</span></li>
+      <li style="margin-top:6px"><code>components/auth/login-form.tsx</code><br><span style="color:var(--muted)">New email input + sent confirmation</span></li>
+      <li style="margin-top:6px"><code>app/api/auth/logout/route.ts</code><br><span style="color:var(--muted)">Call supabase.auth.signOut()</span></li>
+      <li style="margin-top:6px"><code>package.json</code><br><span style="color:var(--muted)">Add @supabase/supabase-js, @supabase/ssr</span></li>
+    </ul>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid #5c1a1a;border-radius:10px;padding:14px">
+    <div class="label" style="color:#f87171">🗑 Deleted files</div>
+    <ul style="font-size:12px;margin:10px 0 0;padding-left:16px;line-height:2">
+      <li><code>lib/session.ts</code><br><span style="color:var(--muted)">Replaced by lib/supabase/</span></li>
+      <li style="margin-top:6px"><code>app/api/auth/login/route.ts</code><br><span style="color:var(--muted)">Supabase handles login server-side</span></li>
+    </ul>
+
+    <div class="label" style="color:#f87171;margin-top:16px">🔑 Env vars removed</div>
+    <ul style="font-size:12px;margin:10px 0 0;padding-left:16px;line-height:2">
+      <li><code>SESSION_SECRET</code></li>
+      <li><code>ADMIN_USERNAME</code></li>
+      <li><code>ADMIN_PASSWORD_HASH</code></li>
+    </ul>
+
+    <div class="label" style="color:#4ade80;margin-top:16px">🔑 Env vars added</div>
+    <ul style="font-size:12px;margin:10px 0 0;padding-left:16px;line-height:2">
+      <li><code>NEXT_PUBLIC_SUPABASE_URL</code></li>
+      <li><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></li>
+      <li><code>DATABASE_URL</code> → Supabase Postgres</li>
+    </ul>
+  </div>
+
+</div>
+
+<p style="text-align:center;margin-top:20px;font-size:13px;color:var(--muted)">Does this look right? Reply in terminal to continue to the DB migration section.</p>

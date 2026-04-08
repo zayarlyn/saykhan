@@ -24,7 +24,8 @@
       "Bash(python3:*)",
       "Bash(git diff:*)",
       "Bash(npx tsx:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }

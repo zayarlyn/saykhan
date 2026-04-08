@@ -1,0 +1,17 @@
+{"type":"server-started","port":60538,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:60538","screen_dir":"/Users/zayarlyn/side-projects/saykhan/.superpowers/brainstorm/37166-1775625494/content","state_dir":"/Users/zayarlyn/side-projects/saykhan/.superpowers/brainstorm/37166-1775625494/state"}
+{"type":"screen-added","file":"/Users/zayarlyn/side-projects/saykhan/.superpowers/brainstorm/37166-1775625494/content/scope.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      Single admin (same as today)\n      One account, just swap the auth backend from bcrypt+iron-session to Supabase. Simpler migration, no role changes needed.","choice":"single","id":null,"timestamp":1775625540061}
+{"source":"user-event","type":"click","text":"A\n    \n      Single admin (same as today)\n      One account, just swap the auth backend from bcrypt+iron-session to Supabase. Simpler migration, no role changes needed.","choice":"single","id":null,"timestamp":1775625543969}
+{"source":"user-event","type":"click","text":"A\n    \n      Single admin (same as today)\n      One account, just swap the auth backend from bcrypt+iron-session to Supabase. Simpler migration, no role changes needed.","choice":"single","id":null,"timestamp":1775625544236}
+{"source":"user-event","type":"click","text":"A\n    \n      Single admin (same as today)\n      One account, just swap the auth backend from bcrypt+iron-session to Supabase. Simpler migration, no role changes needed.","choice":"single","id":null,"timestamp":1775625544949}
+{"source":"user-event","type":"click","text":"A\n    \n      Single admin (same as today)\n      One account, just swap the auth backend from bcrypt+iron-session to Supabase. Simpler migration, no role changes needed.","choice":"single","id":null,"timestamp":1775625558086}
+{"source":"user-event","type":"click","text":"A\n    \n      Single admin (same as today)\n      One account, just swap the auth backend from bcrypt+iron-session to Supabase. Simpler migration, no role changes needed.","choice":"single","id":null,"timestamp":1775625558311}
+{"type":"screen-added","file":"/Users/zayarlyn/side-projects/saykhan/.superpowers/brainstorm/37166-1775625494/content/db-question.html"}
+{"source":"user-event","type":"click","text":"B\n    \n      Auth + Supabase Postgres\n      Move everything to Supabase — auth and DB on one platform. Simpler infra, one dashboard to manage.","choice":"full","id":null,"timestamp":1775625633917}
+{"type":"screen-added","file":"/Users/zayarlyn/side-projects/saykhan/.superpowers/brainstorm/37166-1775625494/content/login-method.html"}
+{"source":"user-event","type":"click","text":"B\n    \n      Magic Link (email OTP)\n      Admin enters email, receives a one-time login link. No password to remember or leak. Requires email access each login.","choice":"magic-link","id":null,"timestamp":1775625716361}
+{"type":"screen-added","file":"/Users/zayarlyn/side-projects/saykhan/.superpowers/brainstorm/37166-1775625494/content/approaches.html"}
+{"type":"screen-added","file":"/Users/zayarlyn/side-projects/saykhan/.superpowers/brainstorm/37166-1775625494/content/design-auth-flow.html"}
+{"type":"screen-added","file":"/Users/zayarlyn/side-projects/saykhan/.superpowers/brainstorm/37166-1775625494/content/design-changes.html"}
+{"type":"screen-added","file":"/Users/zayarlyn/side-projects/saykhan/.superpowers/brainstorm/37166-1775625494/content/design-db.html"}
+{"type":"server-stopped","reason":"idle timeout"}

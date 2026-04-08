@@ -1,0 +1,40 @@
+<h2>3 approaches to Supabase auth integration</h2>
+<p class="subtitle">Each has different complexity and trade-offs. My recommendation is A.</p>
+
+<div class="options">
+  <div class="option" data-choice="ssr" onclick="toggleSelect(this)">
+    <div class="letter">A ★</div>
+    <div class="content">
+      <h3>@supabase/ssr — recommended</h3>
+      <p>Supabase's official Next.js App Router package. Handles cookie-based sessions automatically across server components, API routes, and middleware. Replaces iron-session entirely. Clean and well-supported.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>Official, maintained by Supabase</li><li>Works seamlessly in proxy.ts, server components, API routes</li><li>Handles token refresh automatically</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Requires updating proxy.ts and auth routes</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="admin-sdk" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Supabase Admin SDK (server-only)</h3>
+      <p>Use the Supabase service-role key server-side to verify JWTs. Keep iron-session for the cookie layer. Supabase handles login flow; you keep your existing session infrastructure.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>Minimal changes to existing proxy/session code</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Two session systems in play (Supabase + iron-session)</li><li>More complexity, less official support</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="client-only" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Client-side only (@supabase/supabase-js)</h3>
+      <p>Auth entirely in the browser. No server-side session. Supabase JS client handles login and stores the JWT in localStorage.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>Simplest to implement</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Can't protect API routes server-side</li><li>JWT in localStorage is less secure</li><li>Doesn't work with server components</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
