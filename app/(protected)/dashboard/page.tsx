@@ -3,26 +3,82 @@ import { prisma } from '@/lib/prisma'
 import { SummaryCards } from '@/components/dashboard/summary-cards'
 import { LowStockList } from '@/components/dashboard/low-stock-list'
 import { NearExpiredList } from '@/components/dashboard/near-expired-list'
-import { MonthNav } from '@/components/dashboard/month-nav'
+import { DateRangeSelector } from '@/components/dashboard/date-range-selector'
 
-export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
-	const { month } = await searchParams
+function resolveRange(preset: string | undefined, from: string | undefined, to: string | undefined) {
 	const now = new Date()
-	const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-	const activeMonth = month && /^\d{4}-\d{2}$/.test(month) ? month : currentMonth
+	const today = { y: now.getFullYear(), m: now.getMonth(), d: now.getDate() }
 
-	const [year, mon] = activeMonth.split('-').map(Number)
-	const startOfMonth = new Date(year, mon - 1, 1)
-	const endOfMonth = new Date(year, mon, 0, 23, 59, 59)
+	if (from && to && /^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to)) {
+		return {
+			start: new Date(from + 'T00:00:00'),
+			end: new Date(to + 'T23:59:59'),
+			activePreset: 'custom' as const,
+		}
+	}
+
+	switch (preset) {
+		case 'today':
+			return {
+				start: new Date(today.y, today.m, today.d),
+				end: new Date(today.y, today.m, today.d, 23, 59, 59),
+				activePreset: 'today' as const,
+			}
+		case 'yesterday': {
+			const d = new Date(today.y, today.m, today.d - 1)
+			return {
+				start: new Date(d.getFullYear(), d.getMonth(), d.getDate()),
+				end: new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59),
+				activePreset: 'yesterday' as const,
+			}
+		}
+		case 'this-week': {
+			const start = new Date(today.y, today.m, today.d - now.getDay())
+			return {
+				start,
+				end: new Date(today.y, today.m, today.d, 23, 59, 59),
+				activePreset: 'this-week' as const,
+			}
+		}
+		case 'last-month':
+			return {
+				start: new Date(today.y, today.m - 1, 1),
+				end: new Date(today.y, today.m, 0, 23, 59, 59),
+				activePreset: 'last-month' as const,
+			}
+		case 'last-30':
+			return {
+				start: new Date(today.y, today.m, today.d - 29),
+				end: new Date(today.y, today.m, today.d, 23, 59, 59),
+				activePreset: 'last-30' as const,
+			}
+		default:
+			return {
+				start: new Date(today.y, today.m, 1),
+				end: new Date(today.y, today.m, today.d, 23, 59, 59),
+				activePreset: 'this-month' as const,
+			}
+	}
+}
+
+export default async function DashboardPage({
+	searchParams,
+}: {
+	searchParams: Promise<{ preset?: string; from?: string; to?: string }>
+}) {
+	const { preset, from, to } = await searchParams
+	const { start, end, activePreset } = resolveRange(preset, from, to)
+
+	const now = new Date()
 	const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
 	const [sessions, expenses, lowStockMeds, nearExpiredItems] = await Promise.all([
 		prisma.patientSession.findMany({
-			where: { date: { gte: startOfMonth, lte: endOfMonth } },
+			where: { date: { gte: start, lte: end } },
 			include: { medications: true },
 		}),
 		prisma.expense.findMany({
-			where: { date: { gte: startOfMonth, lte: endOfMonth }, type: 'MANUAL' },
+			where: { date: { gte: start, lte: end }, type: 'MANUAL' },
 			include: { category: { select: { name: true } } },
 		}),
 		prisma.$queryRaw<Array<{ id: string; name: string; stock: number; threshold: number }>>`
@@ -53,7 +109,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 				_min: { date: true },
 		  })
 		: []
-	const newPatientCount = patientFirstSessions.filter(p => p._min.date! >= startOfMonth).length
+	const newPatientCount = patientFirstSessions.filter(p => p._min.date! >= start).length
 
 	// Inventory cost details
 	const uniqueMedCount = new Set(sessions.flatMap(s => s.medications.map(m => m.medicationId))).size
@@ -69,7 +125,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 	return (
 		<div className='space-y-6'>
 			<Suspense>
-				<MonthNav month={activeMonth} />
+				<DateRangeSelector
+					activePreset={activePreset}
+					from={activePreset === 'custom' ? from : undefined}
+					to={activePreset === 'custom' ? to : undefined}
+				/>
 			</Suspense>
 			<LowStockList items={lowStockMeds.map((m) => ({ ...m, stock: Number(m.stock), threshold: Number(m.threshold) }))} />
 			<NearExpiredList
