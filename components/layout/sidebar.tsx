@@ -76,7 +76,10 @@ export function Sidebar({ clinicName }: { clinicName: string }) {
       </div>
 
       {/* Sign out */}
-      <div className="px-3 py-3 border-t border-[#e7e8eb]">
+      <div className="px-3 py-3 border-t border-[#e7e8eb] space-y-2">
+        <div className="px-3 text-[11px] text-[#9da4b0]">
+          Developed by <a href="https://www.zayarlyn.com" target="_blank" rel="noopener noreferrer" className="hover:underline text-[#6c7688]">Zayar Lin</a>
+        </div>
         <button
           onClick={handleLogout}
           className="flex items-center gap-2.5 w-full px-3 py-2 rounded-md text-[13px] font-medium text-[#6c7688] hover:bg-[#f5f7fa] hover:text-[#0a1b39] transition-all duration-150"

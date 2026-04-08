@@ -13,6 +13,16 @@ const inter = Inter({
 export const metadata: Metadata = {
 	title: 'Saykhan — Clinic Management',
 	description: 'Clinic management system for tracking patients, sessions, medications, and expenses',
+	openGraph: {
+		title: 'Saykhan — Clinic Management',
+		description: 'Clinic management system for tracking patients, sessions, medications, and expenses',
+		type: 'website',
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'Saykhan — Clinic Management',
+		description: 'Clinic management system for tracking patients, sessions, medications, and expenses',
+	},
 	appleWebApp: {
 		capable: true,
 		statusBarStyle: 'default',
