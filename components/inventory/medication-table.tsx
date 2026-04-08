@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -48,10 +49,10 @@ export function MedicationTable({ medications }: { medications: Medication[] }) 
       {/* Mobile cards */}
       <div className="md:hidden space-y-2">
         {paged.map(med => (
-          <div
+          <Link
             key={med.id}
-            className="bg-white border rounded-lg p-3 space-y-1.5 cursor-pointer active:bg-gray-50"
-            onClick={() => router.push(`/inventory/${med.id}/edit`)}
+            href={`/inventory/${med.id}/edit`}
+            className="block bg-white border rounded-lg p-3 space-y-1.5 active:bg-gray-50"
           >
             <div className="flex items-start justify-between gap-2">
               <div>
@@ -71,7 +72,7 @@ export function MedicationTable({ medications }: { medications: Medication[] }) 
                 <span>Exp: {new Date(med.nearestExpiry).toLocaleDateString()}</span>
               )}
             </div>
-          </div>
+          </Link>
         ))}
         {filtered.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No medications found</p>}
       </div>

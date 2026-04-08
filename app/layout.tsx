@@ -1,38 +1,39 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { Suspense } from "react";
-import { NavigationProgress } from "@/components/layout/navigation-progress";
-import "./globals.css";
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
+import { Suspense } from 'react'
+import { NavigationProgress } from '@/components/layout/navigation-progress'
+import './globals.css'
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
+	variable: '--font-inter',
+	subsets: ['latin'],
+	weight: ['400', '500', '600', '700'],
+})
 
 export const metadata: Metadata = {
-  title: "Saykhan — Clinic Management",
-  description: "Clinic management system for tracking patients, sessions, medications, and expenses",
-};
+	title: 'Saykhan — Clinic Management',
+	description: 'Clinic management system for tracking patients, sessions, medications, and expenses',
+}
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1.5,
-};
+export const viewport: Viewport = {
+	width: 'device-width',
+	initialScale: 1,
+	minimumScale: 1,
+}
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode
 }>) {
-  return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
-        <Suspense>
-          <NavigationProgress />
-        </Suspense>
-        {children}
-      </body>
-    </html>
-  );
+	return (
+		<html lang='en' className={`${inter.variable} h-full antialiased`}>
+			<body className='min-h-full flex flex-col'>
+				<Suspense>
+					<NavigationProgress />
+				</Suspense>
+				{children}
+			</body>
+		</html>
+	)
 }

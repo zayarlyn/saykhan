@@ -204,7 +204,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 
 			<MedicationSelector control={control} medications={medications} setValue={setValue} />
 
-			<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+			<div className='grid grid-cols-2 gap-4'>
 				<div className='space-y-1'>
 					<Label>Amount (MMK)</Label>
 					<Input type='number' {...register('paymentAmount')} />

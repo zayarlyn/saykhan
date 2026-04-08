@@ -39,11 +39,9 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
 			{/* Mobile cards */}
 			<div className='md:hidden space-y-2'>
 				{paged.map((s) => (
-					<div key={s.id} className='bg-white border rounded-lg p-3 space-y-1.5 cursor-pointer hover:bg-gray-50' onClick={() => router.push(`/sessions/${s.id}`)}>
-						<div className='flex items-start justify-between gap-2' onClick={(e) => e.stopPropagation()}>
-							<Link href={`/patients/${s.patient.id}`} className='font-medium text-sm hover:underline'>
-								{s.patient.name}
-							</Link>
+					<Link key={s.id} href={`/sessions/${s.id}`} className='block bg-white border rounded-lg p-3 space-y-1.5 hover:bg-gray-50'>
+						<div className='flex items-start justify-between gap-2'>
+							<span className='font-medium text-sm'>{s.patient.name}</span>
 							<span className='text-sm font-semibold shrink-0'>{Number(s.paymentAmount).toLocaleString()}</span>
 						</div>
 						<div className='text-xs text-gray-500 flex items-center justify-between'>
@@ -51,7 +49,7 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
 							<span>{new Date(s.date).toLocaleDateString()}</span>
 						</div>
 						{s.medications.length > 0 && <p className='text-xs text-gray-400 truncate'>{s.medications.map((m) => `${m.medication.name} ×${m.quantity}`).join(', ')}</p>}
-					</div>
+					</Link>
 				))}
 				{filtered.length === 0 && <p className='text-center py-8 text-gray-400 text-sm'>No sessions found</p>}
 			</div>
