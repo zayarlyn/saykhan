@@ -5,6 +5,8 @@ import { NavigationProgress } from '@/components/layout/navigation-progress'
 import { VercelToolbar } from '@vercel/toolbar/next'
 import './globals.css'
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+
 const inter = Inter({
 	variable: '--font-inter',
 	subsets: ['latin'],
@@ -18,11 +20,20 @@ export const metadata: Metadata = {
 		title: 'Saykhan — Clinic Management',
 		description: 'Clinic management system for tracking patients, sessions, medications, and expenses',
 		type: 'website',
+		images: [
+			{
+				url: `${baseUrl}/og-image.png`,
+				width: 1200,
+				height: 630,
+				alt: 'Saykhan — Clinic Management',
+			},
+		],
 	},
 	twitter: {
 		card: 'summary_large_image',
 		title: 'Saykhan — Clinic Management',
 		description: 'Clinic management system for tracking patients, sessions, medications, and expenses',
+		images: [`${baseUrl}/og-image.png`],
 	},
 	appleWebApp: {
 		capable: true,
