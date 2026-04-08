@@ -13,12 +13,18 @@ const inter = Inter({
 export const metadata: Metadata = {
 	title: 'Saykhan — Clinic Management',
 	description: 'Clinic management system for tracking patients, sessions, medications, and expenses',
+	appleWebApp: {
+		capable: true,
+		statusBarStyle: 'default',
+		title: 'Saykhan',
+	},
 }
 
 export const viewport: Viewport = {
 	width: 'device-width',
 	initialScale: 1,
 	minimumScale: 1,
+	themeColor: '#2e37a4',
 }
 
 export default function RootLayout({
