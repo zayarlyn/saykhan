@@ -43,8 +43,8 @@ export function SummaryCards({ stats }: { stats: Stats }) {
       value: stats.adjustedExpenses,
       color: 'text-orange-600',
       details: stats.topExpenseCategory
-        ? [{ label: 'Most used expense', value: `${stats.topExpenseCategory[0]} — ${stats.topExpenseCategory[1].toLocaleString()} MMK` }]
-        : [{ label: 'Most used expense', value: '—' }],
+        ? [{ label: 'Top expense', value: `${stats.topExpenseCategory[0]} — ${stats.topExpenseCategory[1].toLocaleString()} MMK` }]
+        : [{ label: 'Top expense', value: '—' }],
     },
     {
       label: 'Net Profit',
