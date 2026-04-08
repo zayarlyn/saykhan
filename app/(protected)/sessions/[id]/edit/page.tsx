@@ -71,7 +71,7 @@ export default async function EditSessionPage({
 
   return (
     <div className="space-y-4">
-      <BackButton href={`/sessions/${id}`} label="Session" />
+      <BackButton label="Session" />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Edit Session</h1>
         <Link href={`/sessions/${id}`} className={buttonVariants({ variant: 'outline', size: 'sm' })}>

@@ -48,6 +48,7 @@ model Medication {
   category     MedicationCategory  @relation(fields: [categoryId], references: [id])
   cost         Decimal             @db.Decimal(10, 2)
   sellingPrice Decimal             @db.Decimal(10, 2)
+  unitType     String              @default("pcs")
   stock        Int                 @default(0)
   threshold    Int                 @default(10)
   restockItems RestockBatchItem[]
@@ -118,4 +119,9 @@ model Expense {
 enum ExpenseType {
   RESTOCK
   MANUAL
+}
+
+model Setting {
+  key   String @id
+  value String
 }

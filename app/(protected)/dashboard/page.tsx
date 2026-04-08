@@ -1,12 +1,23 @@
+import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { SummaryCards } from '@/components/dashboard/summary-cards'
 import { LowStockList } from '@/components/dashboard/low-stock-list'
 import { NearExpiredList } from '@/components/dashboard/near-expired-list'
+import { MonthNav } from '@/components/dashboard/month-nav'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>
+}) {
+  const { month } = await searchParams
   const now = new Date()
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const activeMonth = month && /^\d{4}-\d{2}$/.test(month) ? month : currentMonth
+
+  const [year, mon] = activeMonth.split('-').map(Number)
+  const startOfMonth = new Date(year, mon - 1, 1)
+  const endOfMonth = new Date(year, mon, 0, 23, 59, 59)
   const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
   const [sessions, expenses, lowStockMeds, nearExpiredItems] = await Promise.all([
@@ -34,11 +45,11 @@ export default async function DashboardPage() {
   const adjustedExpenses = expenses.filter(e => e.type === 'MANUAL').reduce((sum, e) => sum + Number(e.amount), 0)
   const netProfit = revenue - inventoryCost - adjustedExpenses
 
-  const monthName = now.toLocaleString('default', { month: 'long', year: 'numeric' })
-
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard — {monthName}</h1>
+      <Suspense>
+        <MonthNav month={activeMonth} />
+      </Suspense>
       <LowStockList items={lowStockMeds.map(m => ({ ...m, stock: Number(m.stock), threshold: Number(m.threshold) }))} />
       <NearExpiredList items={nearExpiredItems.map(item => ({
         id: item.id,

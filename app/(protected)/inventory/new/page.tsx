@@ -24,7 +24,7 @@ export default function NewMedicationPage() {
 
   return (
     <div className="space-y-4">
-      <BackButton href="/inventory" label="Inventory" />
+      <BackButton label="Inventory" />
       <h1 className="text-2xl font-bold">Add Medication</h1>
       <MedicationForm categories={categories} onSubmit={handleSubmit} submitLabel="Add Medication" />
     </div>

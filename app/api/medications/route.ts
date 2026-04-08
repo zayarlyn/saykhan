@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
     data: {
       name: parsed.data.name,
       categoryId: parsed.data.categoryId,
+      unitType: parsed.data.unitType,
       cost: parsed.data.cost,
       sellingPrice: parsed.data.sellingPrice,
       threshold: parsed.data.threshold,

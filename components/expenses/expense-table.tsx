@@ -1,7 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
+import { Pagination } from '@/components/ui/pagination'
+
+const PAGE_SIZE = 20
 
 interface Expense {
   id: string
@@ -14,11 +18,15 @@ interface Expense {
 }
 
 export function ExpenseTable({ expenses }: { expenses: Expense[] }) {
+  const [page, setPage] = useState(1)
+  const totalPages = Math.ceil(expenses.length / PAGE_SIZE)
+  const paged = expenses.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
   return (
-    <div>
+    <div className="space-y-3">
       {/* Mobile cards */}
       <div className="md:hidden space-y-2">
-        {expenses.map(e => (
+        {paged.map(e => (
           <div key={e.id} className="bg-white border rounded-lg p-3 space-y-1.5">
             <div className="flex items-start justify-between gap-2">
               <div className="space-y-0.5">
@@ -57,7 +65,7 @@ export function ExpenseTable({ expenses }: { expenses: Expense[] }) {
             </tr>
           </thead>
           <tbody>
-            {expenses.map(e => (
+            {paged.map(e => (
               <tr key={e.id} className="border-t hover:bg-gray-50">
                 <td className="px-4 py-2 text-gray-500">{new Date(e.date).toLocaleDateString()}</td>
                 <td className="px-4 py-2">
@@ -79,6 +87,8 @@ export function ExpenseTable({ expenses }: { expenses: Expense[] }) {
         </table>
         {expenses.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No expenses yet</p>}
       </div>
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   )
 }

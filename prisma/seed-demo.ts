@@ -257,7 +257,7 @@ async function main() {
       data: {
         type: 'MANUAL',
         amount: exp.amount,
-        date: daysAgo(i * 5 + 1),
+        date: daysAgo(i * 7 + 1),
         categoryId: catId ?? undefined,
         description: exp.description,
       },
@@ -279,7 +279,7 @@ async function main() {
   }> = [
     {
       serviceTypeName: 'Oral',
-      paymentAmount: 5000,
+      paymentAmount: 100000,
       daysBack: 1,
       meds: [
         { medicationId: medications[0].id, quantity: 10, unitCost: 100, sellingPrice: 200 },
@@ -288,7 +288,7 @@ async function main() {
     },
     {
       serviceTypeName: 'IM 1 dose',
-      paymentAmount: 8000,
+      paymentAmount: 160000,
       daysBack: 2,
       meds: [
         { medicationId: medications[8].id, quantity: 1, unitCost: 800,  sellingPrice: 1500 },
@@ -297,7 +297,7 @@ async function main() {
     },
     {
       serviceTypeName: 'IV',
-      paymentAmount: 15000,
+      paymentAmount: 300000,
       daysBack: 3,
       meds: [
         { medicationId: medications[6].id, quantity: 2,  unitCost: 1500, sellingPrice: 3000 },
@@ -306,7 +306,7 @@ async function main() {
     },
     {
       serviceTypeName: 'Pharmacy Sale',
-      paymentAmount: 4000,
+      paymentAmount: 80000,
       daysBack: 4,
       meds: [
         { medicationId: medications[4].id, quantity: 6,  unitCost: 150, sellingPrice: 300 },
@@ -315,7 +315,7 @@ async function main() {
     },
     {
       serviceTypeName: 'Oral',
-      paymentAmount: 6000,
+      paymentAmount: 120000,
       daysBack: 5,
       meds: [
         { medicationId: medications[2].id, quantity: 10, unitCost: 200, sellingPrice: 400 },
@@ -324,7 +324,7 @@ async function main() {
     },
     {
       serviceTypeName: 'Drip',
-      paymentAmount: 20000,
+      paymentAmount: 400000,
       daysBack: 7,
       meds: [
         { medicationId: medications[7].id, quantity: 2,  unitCost: 2000, sellingPrice: 3500 },
@@ -334,7 +334,7 @@ async function main() {
     },
     {
       serviceTypeName: 'IM Stemetil',
-      paymentAmount: 7000,
+      paymentAmount: 140000,
       daysBack: 9,
       meds: [
         { medicationId: medications[9].id, quantity: 1, unitCost: 1200, sellingPrice: 2000 },
@@ -343,7 +343,7 @@ async function main() {
     },
     {
       serviceTypeName: 'Oral',
-      paymentAmount: 5500,
+      paymentAmount: 110000,
       daysBack: 10,
       meds: [
         { medicationId: medications[1].id, quantity: 6,  unitCost: 300, sellingPrice: 500 },
@@ -353,7 +353,7 @@ async function main() {
     },
     {
       serviceTypeName: 'IV pantoprazole',
-      paymentAmount: 12000,
+      paymentAmount: 240000,
       daysBack: 12,
       meds: [
         { medicationId: medications[6].id, quantity: 1, unitCost: 1500, sellingPrice: 3000 },
@@ -362,7 +362,7 @@ async function main() {
     },
     {
       serviceTypeName: 'Pharmacy Sale',
-      paymentAmount: 3000,
+      paymentAmount: 60000,
       daysBack: 13,
       meds: [
         { medicationId: medications[0].id, quantity: 10, unitCost: 100, sellingPrice: 200 },
@@ -371,7 +371,7 @@ async function main() {
     },
     {
       serviceTypeName: 'IM 2 doses',
-      paymentAmount: 10000,
+      paymentAmount: 200000,
       daysBack: 15,
       meds: [
         { medicationId: medications[8].id, quantity: 2, unitCost: 800, sellingPrice: 1500 },
@@ -380,7 +380,7 @@ async function main() {
     },
     {
       serviceTypeName: 'Oral',
-      paymentAmount: 4500,
+      paymentAmount: 90000,
       daysBack: 17,
       meds: [
         { medicationId: medications[1].id, quantity: 3, unitCost: 300, sellingPrice: 500 },
@@ -389,13 +389,13 @@ async function main() {
     },
     {
       serviceTypeName: 'RBS',
-      paymentAmount: 3000,
+      paymentAmount: 60000,
       daysBack: 18,
       meds: [],
     },
     {
       serviceTypeName: 'Oral',
-      paymentAmount: 7000,
+      paymentAmount: 140000,
       daysBack: 20,
       meds: [
         { medicationId: medications[2].id, quantity: 10, unitCost: 200, sellingPrice: 400 },
@@ -404,7 +404,7 @@ async function main() {
     },
     {
       serviceTypeName: 'IV',
-      paymentAmount: 18000,
+      paymentAmount: 360000,
       daysBack: 22,
       meds: [
         { medicationId: medications[6].id, quantity: 2,  unitCost: 1500, sellingPrice: 3000 },

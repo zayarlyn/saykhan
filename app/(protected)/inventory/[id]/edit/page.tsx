@@ -41,7 +41,7 @@ export default function EditMedicationPage() {
 
   return (
     <div className="space-y-4">
-      <BackButton href="/inventory" label="Inventory" />
+      <BackButton label="Inventory" />
       <h1 className="text-2xl font-bold">Edit Medication</h1>
       <MedicationForm
         categories={categories}

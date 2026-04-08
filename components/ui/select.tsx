@@ -33,6 +33,7 @@ function Select({ children, onValueChange, ...props }: SelectProps) {
   return (
     <SelectLabelsContext.Provider value={{ labelsRef, bumpVersion }}>
       <SelectPrimitive.Root
+        modal={false}
         {...props}
         onValueChange={onValueChange ? (v: unknown) => onValueChange(v as string | null) : undefined}
       >

@@ -28,22 +28,27 @@ export function MedicationSelector({ control, medications, setValue }: {
     <div className="space-y-3">
       <Label>Medications Used</Label>
       {fields.map((field, i) => (
-        <div key={field.id} className="grid grid-cols-4 gap-2 items-end">
-          <div>
-            <Select onValueChange={v => handleMedChange(i, v)}>
-              <SelectTrigger><SelectValue placeholder="Select med…" /></SelectTrigger>
-              <SelectContent>
-                {medications.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+        <div key={field.id} className="border rounded-lg p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-gray-500">Item {i + 1}</span>
+            <Button type="button" variant="ghost" size="sm" className="h-6 text-xs" onClick={() => remove(i)}>Remove</Button>
           </div>
-          <div>
-            <Input type="number" placeholder="Qty" {...control.register(`medications.${i}.quantity`, { valueAsNumber: true })} />
+          <Select onValueChange={(v: string | null) => v && handleMedChange(i, v)}>
+            <SelectTrigger className="w-full"><SelectValue placeholder="Select medication…" /></SelectTrigger>
+            <SelectContent>
+              {medications.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Qty</Label>
+              <Input type="number" placeholder="Quantity" {...control.register(`medications.${i}.quantity`, { valueAsNumber: true })} />
+            </div>
+            <div>
+              <Label className="text-xs">Unit Cost</Label>
+              <Input type="number" step="0.01" placeholder="Cost" {...control.register(`medications.${i}.unitCost`, { valueAsNumber: true })} />
+            </div>
           </div>
-          <div>
-            <Input type="number" step="0.01" placeholder="Unit cost" {...control.register(`medications.${i}.unitCost`, { valueAsNumber: true })} />
-          </div>
-          <Button type="button" variant="ghost" size="sm" onClick={() => remove(i)}>Remove</Button>
         </div>
       ))}
       <Button type="button" variant="outline" size="sm"

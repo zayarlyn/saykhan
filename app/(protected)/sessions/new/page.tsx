@@ -12,7 +12,7 @@ export default async function NewSessionPage() {
 
   return (
     <div className="space-y-4">
-      <BackButton href="/sessions" label="Sessions" />
+      <BackButton label="Sessions" />
       <h1 className="text-2xl font-bold">New Session</h1>
       <SessionForm
         patients={patients}

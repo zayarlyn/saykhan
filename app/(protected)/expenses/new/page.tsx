@@ -6,7 +6,7 @@ export default async function NewExpensePage() {
   const categories = await prisma.expenseCategory.findMany({ orderBy: { name: 'asc' } })
   return (
     <div className="space-y-4">
-      <BackButton href="/expenses" label="Expenses" />
+      <BackButton label="Expenses" />
       <h1 className="text-2xl font-bold">Add Expense</h1>
       <ExpenseForm categories={categories} />
     </div>

@@ -9,7 +9,7 @@ export function SummaryCards({ stats }: { stats: Stats }) {
   const cards = [
     { label: 'Revenue', value: stats.revenue, color: 'text-green-600' },
     { label: 'Inventory Cost', value: stats.inventoryCost, color: 'text-blue-600' },
-    { label: 'Adjusted Expenses', value: stats.adjustedExpenses, color: 'text-orange-600' },
+    { label: 'Expenses (excl. restock)', value: stats.adjustedExpenses, color: 'text-orange-600' },
     { label: 'Net Profit', value: stats.netProfit, color: stats.netProfit >= 0 ? 'text-green-700' : 'text-red-600' },
   ]
 

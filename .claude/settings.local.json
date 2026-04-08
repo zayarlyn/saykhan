@@ -3,7 +3,28 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npx prisma:*)",
-      "Bash(npx shadcn@latest:*)"
+      "Bash(npx shadcn@latest:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npx jest:*)",
+      "Bash(node:*)",
+      "Bash(claude mcp:*)",
+      "Bash(claude plugin:*)",
+      "mcp__figma__get_metadata",
+      "mcp__figma__get_design_context",
+      "mcp__figma__get_screenshot",
+      "Bash(npm run:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(curl -s http://localhost:3000/inventory/new)",
+      "Bash(npm test:*)",
+      "Bash(ls /Users/zayarlyn/side-projects/saykhan/jest*)",
+      "Bash(python3:*)",
+      "Bash(git diff:*)",
+      "Bash(npx tsx:*)",
+      "Bash(curl:*)"
     ]
   }
 }
