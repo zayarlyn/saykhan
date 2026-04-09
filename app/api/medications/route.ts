@@ -4,8 +4,9 @@ import { createMedicationSchema } from '@/lib/validations/medication'
 
 export async function GET() {
   const medications = await prisma.medication.findMany({
+    where: { deletedAt: null },
     include: { category: true },
-    orderBy: { name: 'asc' },
+    orderBy: { createdAt: 'desc' },
   })
 
   const expiryGroups = await prisma.restockBatchItem.groupBy({

@@ -5,7 +5,7 @@ import { updateSessionSchema } from '@/lib/validations/session'
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const session = await prisma.patientSession.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       patient: true,
       serviceType: true,
@@ -34,7 +34,10 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
         })
       )
     )
-    await tx.patientSession.delete({ where: { id } })
+    await tx.patientSession.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    })
   })
 
   return NextResponse.json({ ok: true })

@@ -12,63 +12,77 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker'
 
 const schema = z.object({
-  categoryId: z.string().min(1, 'Category required'),
-  amount: z.coerce.number().positive(),
-  description: z.string().optional(),
-  date: z.string().min(1),
+	categoryId: z.string().min(1, 'Category required'),
+	amount: z.coerce.number().positive(),
+	description: z.string().optional(),
+	date: z.string().min(1),
 })
 
 type FormData = z.infer<typeof schema>
 
-interface Category { id: string; name: string }
+interface Category {
+	id: string
+	name: string
+}
 
 export function ExpenseForm({ categories }: { categories: Category[] }) {
-  const router = useRouter()
-  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
-    resolver: zodResolver(schema) as any,
-    defaultValues: { date: new Date().toISOString() },
-  })
+	const router = useRouter()
+	const {
+		register,
+		handleSubmit,
+		setValue,
+		watch,
+		formState: { errors, isSubmitting },
+	} = useForm<FormData>({
+		resolver: zodResolver(schema) as any,
+		defaultValues: { date: new Date().toISOString() },
+	})
 
-  const dateValue = watch('date')
+	const dateValue = watch('date')
 
-  async function onSubmit(data: FormData) {
-    const res = await fetch('/api/expenses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...data, date: new Date(data.date).toISOString() }),
-    })
-    if (res.ok) router.push('/expenses')
-  }
+	async function onSubmit(data: FormData) {
+		const res = await fetch('/api/expenses', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ ...data, date: new Date(data.date).toISOString() }),
+		})
+		if (res.ok) router.push('/expenses')
+	}
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
-      <div className="space-y-1">
-        <Label>Category</Label>
-        <Select onValueChange={(v: string | null) => setValue('categoryId', v ?? '')}>
-          <SelectTrigger><SelectValue placeholder="Select category…" /></SelectTrigger>
-          <SelectContent>
-            {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        {errors.categoryId && <p className="text-xs text-red-500">{errors.categoryId.message}</p>}
-      </div>
-      <div className="space-y-1">
-        <Label>Amount</Label>
-        <Input type="number" step="0.01" {...register('amount')} />
-        {errors.amount && <p className="text-xs text-red-500">{errors.amount.message}</p>}
-      </div>
-      <div className="space-y-1">
-        <Label>Date</Label>
-        <DatePicker
-          value={dateValue ? new Date(dateValue) : undefined}
-          onChange={(date) => setValue('date', date ? date.toISOString() : '')}
-        />
-      </div>
-      <div className="space-y-1">
-        <Label>Description</Label>
-        <Textarea {...register('description')} rows={2} />
-      </div>
-      <Button type="submit" disabled={isSubmitting}>Save Expense</Button>
-    </form>
-  )
+	return (
+		<form onSubmit={handleSubmit(onSubmit)} className='space-y-4 max-w-md'>
+			<div className='space-y-1'>
+				<Label>Category</Label>
+				<Select onValueChange={(v: string | null) => setValue('categoryId', v ?? '')}>
+					<SelectTrigger className='w-full'>
+						<SelectValue placeholder='Select category…' />
+					</SelectTrigger>
+					<SelectContent>
+						{categories.map((c) => (
+							<SelectItem key={c.id} value={c.id}>
+								{c.name}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+				{errors.categoryId && <p className='text-xs text-red-500'>{errors.categoryId.message}</p>}
+			</div>
+			<div className='space-y-1'>
+				<Label>Amount</Label>
+				<Input type='number' step='0.01' {...register('amount')} />
+				{errors.amount && <p className='text-xs text-red-500'>{errors.amount.message}</p>}
+			</div>
+			<div className='space-y-1'>
+				<Label>Date</Label>
+				<DatePicker value={dateValue ? new Date(dateValue) : undefined} onChange={(date) => setValue('date', date ? date.toISOString() : '')} />
+			</div>
+			<div className='space-y-1'>
+				<Label>Description</Label>
+				<Textarea {...register('description')} rows={2} />
+			</div>
+			<Button type='submit' disabled={isSubmitting}>
+				Save Expense
+			</Button>
+		</form>
+	)
 }

@@ -25,7 +25,9 @@
       "Bash(git diff:*)",
       "Bash(npx tsx:*)",
       "Bash(curl:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(git push:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

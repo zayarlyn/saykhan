@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
 
   const sessions = await prisma.patientSession.findMany({
     where: {
+      deletedAt: null,
       ...(patientId && { patientId }),
       ...(serviceTypeId && { serviceTypeId }),
       ...(from || to ? { date: { ...(from && { gte: new Date(from) }), ...(to && { lte: new Date(to) }) } } : {}),

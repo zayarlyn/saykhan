@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { DeleteDialog } from '@/components/ui/delete-dialog'
 import { MedicationForm, type MedicationFormData } from '@/components/inventory/medication-form'
 import { BackButton } from '@/components/layout/back-button'
 
@@ -21,6 +23,7 @@ export default function EditMedicationPage() {
   const [categories, setCategories] = useState([])
   const [defaultValues, setDefaultValues] = useState<MedicationFormData | null>(null)
   const [restockHistory, setRestockHistory] = useState<RestockEntry[]>([])
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -49,17 +52,35 @@ export default function EditMedicationPage() {
     if (res.ok) router.push('/inventory')
   }
 
+  async function handleDeleteConfirm() {
+    const res = await fetch(`/api/medications/${id}`, { method: 'DELETE' })
+    if (res.ok) router.push('/inventory')
+  }
+
   if (!defaultValues) return null
 
   return (
     <div className="space-y-6">
       <BackButton label="Inventory" />
-      <h1 className="text-2xl font-bold">Edit Medication</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Edit Medication</h1>
+        <Button variant="destructive" size="sm" onClick={() => setDeleteDialogOpen(true)}>
+          Delete
+        </Button>
+      </div>
       <MedicationForm
         categories={categories}
         defaultValues={defaultValues}
         onSubmit={handleSubmit}
         submitLabel="Save Changes"
+      />
+
+      <DeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete medication"
+        description="This medication will be permanently deleted from inventory. This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
       />
 
       {restockHistory.length > 0 && (

@@ -5,7 +5,7 @@ import { updateMedicationSchema } from '@/lib/validations/medication'
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const med = await prisma.medication.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       category: true,
       restockItems: {
@@ -34,6 +34,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  await prisma.medication.delete({ where: { id } })
+  await prisma.medication.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  })
   return NextResponse.json({ ok: true })
 }

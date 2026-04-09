@@ -8,7 +8,7 @@ import { InventoryTabs } from '@/components/inventory/inventory-tabs'
 export default async function InventoryPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
 	const { tab = 'medications' } = await searchParams
 
-	const medications = tab === 'medications' ? await prisma.medication.findMany({ include: { category: true }, orderBy: { name: 'asc' } }) : []
+	const medications = tab === 'medications' ? await prisma.medication.findMany({ where: { deletedAt: null }, include: { category: true }, orderBy: { createdAt: 'desc' } }) : []
 
 	const withExpiry = tab === 'medications'
 		? await (async () => {

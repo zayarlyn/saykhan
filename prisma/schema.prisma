@@ -54,6 +54,7 @@ model Medication {
   restockItems RestockBatchItem[]
   sessionMeds  SessionMedication[]
   createdAt    DateTime            @default(now())
+  deletedAt    DateTime?
 }
 
 model RestockBatch {
@@ -89,6 +90,7 @@ model PatientSession {
   paymentAmount   Decimal             @db.Decimal(10, 2)
   medications     SessionMedication[]
   createdAt       DateTime            @default(now())
+  deletedAt       DateTime?
 }
 
 model SessionMedication {

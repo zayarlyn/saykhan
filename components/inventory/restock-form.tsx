@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,9 +8,10 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DateTimePicker } from '@/components/ui/datetime-picker'
 import { DatePicker } from '@/components/ui/date-picker'
+import { Check, ChevronsUpDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const schema = z.object({
 	date: z.string().min(1),
@@ -31,6 +32,91 @@ type FormData = z.infer<typeof schema>
 interface Medication {
 	id: string
 	name: string
+}
+
+interface MedicationSelectorProps {
+	medications: Medication[]
+	value?: string
+	onChange: (medicationId: string) => void
+}
+
+function MedicationSelector({ medications, value, onChange }: MedicationSelectorProps) {
+	const [open, setOpen] = useState(false)
+	const [query, setQuery] = useState('')
+	const containerRef = useRef<HTMLDivElement>(null)
+	const inputRef = useRef<HTMLInputElement>(null)
+
+	useEffect(() => {
+		function handle(e: MouseEvent) {
+			if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+				setOpen(false)
+			}
+		}
+		document.addEventListener('mousedown', handle)
+		return () => document.removeEventListener('mousedown', handle)
+	}, [])
+
+	const trimmed = query.trim()
+	const filtered = medications.filter((m) => m.name.toLowerCase().includes(trimmed.toLowerCase()))
+	const selected = value ? medications.find((m) => m.id === value) : null
+
+	function selectMedication(med: Medication) {
+		setQuery(med.name)
+		onChange(med.id)
+		setOpen(false)
+	}
+
+	return (
+		<div ref={containerRef} className='relative w-full'>
+			<div
+				className={cn(
+					'flex items-center gap-1.5 h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors',
+					open && 'border-ring ring-3 ring-ring/50'
+				)}
+				onClick={() => {
+					setOpen(true)
+					inputRef.current?.focus()
+				}}
+			>
+				<input
+					ref={inputRef}
+					value={query}
+					onChange={(e) => {
+						setQuery(e.target.value)
+						setOpen(true)
+						if (e.target.value !== selected?.name) {
+							onChange('')
+						}
+					}}
+					onFocus={() => setOpen(true)}
+					placeholder='Search medications…'
+					className='flex-1 bg-transparent outline-none placeholder:text-muted-foreground min-w-0'
+				/>
+				<ChevronsUpDown className='size-4 shrink-0 text-muted-foreground' />
+			</div>
+
+			{open && (
+				<div className='absolute z-50 mt-1 w-full rounded-lg border border-border bg-popover shadow-md overflow-hidden'>
+					<ul className='max-h-52 overflow-y-auto py-1'>
+						{filtered.length === 0 && <li className='px-3 py-2 text-sm text-muted-foreground'>No medications found</li>}
+						{filtered.map((m) => (
+							<li
+								key={m.id}
+								onMouseDown={(e) => {
+									e.preventDefault()
+									selectMedication(m)
+								}}
+								className='flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground'
+							>
+								<Check className={cn('size-3.5 shrink-0', value === m.id ? 'inline' : 'hidden')} />
+								{m.name}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+		</div>
+	)
 }
 
 export function RestockForm({ medications }: { medications: Medication[] }) {
@@ -96,18 +182,7 @@ export function RestockForm({ medications }: { medications: Medication[] }) {
 						<div className='space-y-3'>
 							<div className='space-y-1'>
 								<Label>Medication</Label>
-								<Select onValueChange={(v: string | null) => setValue(`items.${i}.medicationId`, v ?? '')}>
-									<SelectTrigger>
-										<SelectValue placeholder='Select…' />
-									</SelectTrigger>
-									<SelectContent>
-										{medications.map((m) => (
-											<SelectItem key={m.id} value={m.id}>
-												{m.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+								<MedicationSelector medications={medications} value={itemsValue[i]?.medicationId} onChange={(medicationId) => setValue(`items.${i}.medicationId`, medicationId)} />
 							</div>
 							<div className='grid grid-cols-2 gap-3'>
 								<div className='space-y-1'>

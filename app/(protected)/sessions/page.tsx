@@ -16,6 +16,7 @@ export default async function SessionsPage({
   const [sessions, patients] = await Promise.all([
     tab === 'sessions'
       ? prisma.patientSession.findMany({
+          where: { deletedAt: null },
           include: {
             patient: true,
             serviceType: true,
@@ -27,7 +28,7 @@ export default async function SessionsPage({
       : Promise.resolve([]),
     tab === 'patients'
       ? prisma.patient.findMany({
-          orderBy: { name: 'asc' },
+          orderBy: { createdAt: 'desc' },
           include: { _count: { select: { sessions: true } } },
         })
       : Promise.resolve([]),

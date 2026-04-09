@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { buttonVariants } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
+import { DeleteSessionButton } from '@/components/sessions/delete-session-button'
 
 export default async function SessionDetailPage({
   params,
@@ -11,7 +12,7 @@ export default async function SessionDetailPage({
 }) {
   const { id } = await params
   const session = await prisma.patientSession.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       patient: true,
       serviceType: true,
@@ -41,9 +42,12 @@ export default async function SessionDetailPage({
             {new Date(session.date).toLocaleString()}
           </p>
         </div>
-        <Link href={`/sessions/${id}/edit`} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
-          Edit
-        </Link>
+        <div className="flex gap-2">
+          <Link href={`/sessions/${id}/edit`} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+            Edit
+          </Link>
+          <DeleteSessionButton sessionId={id} />
+        </div>
       </div>
 
       {session.description && (

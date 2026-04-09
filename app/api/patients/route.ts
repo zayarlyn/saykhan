@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const search = req.nextUrl.searchParams.get('q') ?? ''
   const patients = await prisma.patient.findMany({
     where: search ? { name: { contains: search, mode: 'insensitive' } } : {},
-    orderBy: { name: 'asc' },
+    orderBy: { createdAt: 'desc' },
     include: { _count: { select: { sessions: true } } },
   })
   return NextResponse.json(patients)
