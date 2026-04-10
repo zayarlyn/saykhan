@@ -7,7 +7,7 @@ export default async function NewSessionPage() {
     prisma.patient.findMany({ orderBy: { name: 'asc' } }),
     prisma.serviceType.findMany({ orderBy: { name: 'asc' } }),
     prisma.paymentMethod.findMany({ orderBy: { name: 'asc' } }),
-    prisma.medication.findMany({ orderBy: { name: 'asc' } }),
+    prisma.medication.findMany({ where: { deletedAt: null }, orderBy: { name: 'asc' } }),
   ])
 
   return (

@@ -15,7 +15,7 @@ export default async function EditSessionPage({
 
   const [session, serviceTypes, paymentMethods, medications, patients] = await Promise.all([
     prisma.patientSession.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
       include: {
         patient: true,
         medications: { include: { medication: true } },
@@ -23,7 +23,7 @@ export default async function EditSessionPage({
     }),
     prisma.serviceType.findMany({ orderBy: { name: 'asc' } }),
     prisma.paymentMethod.findMany({ orderBy: { name: 'asc' } }),
-    prisma.medication.findMany({ orderBy: { name: 'asc' } }),
+    prisma.medication.findMany({ where: { deletedAt: null }, orderBy: { name: 'asc' } }),
     prisma.patient.findMany({ orderBy: { name: 'asc' } }),
   ])
 
