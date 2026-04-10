@@ -25,7 +25,7 @@ const schema = z.object({
 	categoryId: z.string().min(1),
 	unitType: z.string().default('pcs'),
 	cost: z.coerce.number().positive(),
-	sellingPrice: z.coerce.number().positive(),
+	sellingPrice: z.coerce.number().nonnegative(),
 	threshold: z.coerce.number().int().nonnegative(),
 })
 
@@ -51,7 +51,7 @@ export function MedicationForm({ categories, defaultValues, onSubmit, submitLabe
 		formState: { errors, isSubmitting },
 	} = useForm<MedicationFormData>({
 		resolver: zodResolver(schema) as Resolver<MedicationFormData>,
-		defaultValues: { threshold: 10, unitType: 'pcs', ...defaultValues },
+		defaultValues: { threshold: 10, unitType: 'pcs', sellingPrice: 0, ...defaultValues },
 	})
 
 	return (
