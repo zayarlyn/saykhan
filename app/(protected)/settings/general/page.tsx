@@ -1,6 +1,7 @@
 import { getClinicName } from '@/lib/clinic-config'
 import { ClinicNameForm } from '@/components/settings/clinic-name-form'
 import { BackButton } from '@/components/layout/back-button'
+export const dynamic = 'force-dynamic'
 
 export default async function GeneralSettingsPage() {
   const clinicName = await getClinicName()

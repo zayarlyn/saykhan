@@ -5,6 +5,7 @@ import { SessionForm } from '@/components/sessions/session-form'
 import type { SessionFormData } from '@/lib/validations/session'
 import { buttonVariants } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
+export const dynamic = 'force-dynamic'
 
 export default async function EditSessionPage({
   params,

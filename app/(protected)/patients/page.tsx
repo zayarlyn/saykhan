@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { PatientTable } from '@/components/patients/patient-table'
+export const dynamic = 'force-dynamic'
 
 export default async function PatientsPage() {
   const raw = await prisma.patient.findMany({

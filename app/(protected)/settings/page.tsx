@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Settings2, Tags } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { SignOutButton } from '@/components/layout/sign-out-button'
+export const dynamic = 'force-dynamic'
 
 const sections = [
 	{

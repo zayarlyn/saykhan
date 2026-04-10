@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { buttonVariants } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
 import { DeleteSessionButton } from '@/components/sessions/delete-session-button'
+export const dynamic = 'force-dynamic'
 
 export default async function SessionDetailPage({
   params,

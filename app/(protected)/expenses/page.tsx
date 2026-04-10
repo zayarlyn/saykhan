@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { buttonVariants } from '@/components/ui/button'
 import { ExpenseTable } from '@/components/expenses/expense-table'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ExpensesPage() {
   const expenses = await prisma.expense.findMany({
     include: { category: true },

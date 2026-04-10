@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { RestockForm } from '@/components/inventory/restock-form'
+export const dynamic = 'force-dynamic'
 
 export default async function RestockPage() {
   const medications = await prisma.medication.findMany({ where: { deletedAt: null }, orderBy: { createdAt: 'desc' } })

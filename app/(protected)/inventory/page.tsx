@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { MedicationTable } from '@/components/inventory/medication-table'
 import { InventoryTabs } from '@/components/inventory/inventory-tabs'
 
+export const dynamic = 'force-dynamic'
+
 export default async function InventoryPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
 	const { tab = 'medications' } = await searchParams
 

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { LookupManager } from '@/components/settings/lookup-manager'
 import { Separator } from '@/components/ui/separator'
 import { BackButton } from '@/components/layout/back-button'
+export const dynamic = 'force-dynamic'
 
 export default async function CategoriesSettingsPage() {
   const [medCategories, serviceTypes, paymentMethods, expenseCategories] = await Promise.all([

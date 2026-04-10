@@ -5,6 +5,8 @@ import { LowStockList } from '@/components/dashboard/low-stock-list'
 import { NearExpiredList } from '@/components/dashboard/near-expired-list'
 import { DateRangeSelector } from '@/components/dashboard/date-range-selector'
 
+export const dynamic = 'force-dynamic'
+
 function resolveRange(preset: string | undefined, from: string | undefined, to: string | undefined) {
 	const now = new Date()
 	const today = { y: now.getFullYear(), m: now.getMonth(), d: now.getDate() }

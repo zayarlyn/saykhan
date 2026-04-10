@@ -6,6 +6,8 @@ import { SessionTable } from '@/components/sessions/session-table'
 import { PatientTable } from '@/components/patients/patient-table'
 import { SessionsTabs } from '@/components/sessions/sessions-tabs'
 
+export const dynamic = 'force-dynamic'
+
 export default async function SessionsPage({
   searchParams,
 }: {
