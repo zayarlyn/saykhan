@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { createSessionSchema } from '@/lib/validations/session'
 
@@ -84,5 +85,7 @@ export async function POST(req: NextRequest) {
     return created
   })
 
+  revalidatePath('/sessions')
+  revalidatePath('/dashboard')
   return NextResponse.json(session, { status: 201 })
 }

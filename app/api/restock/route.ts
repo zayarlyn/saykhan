@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { createRestockSchema } from '@/lib/validations/restock'
 
@@ -59,5 +60,8 @@ export async function POST(req: NextRequest) {
     return restockBatch
   })
 
+  revalidatePath('/inventory')
+  revalidatePath('/expenses')
+  revalidatePath('/dashboard')
   return NextResponse.json(batch, { status: 201 })
 }

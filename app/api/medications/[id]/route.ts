@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { updateMedicationSchema } from '@/lib/validations/medication'
 
@@ -29,6 +30,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     data: parsed.data,
     include: { category: true },
   })
+  revalidatePath('/inventory')
+  revalidatePath('/inventory/restock')
+  revalidatePath('/sessions/new')
   return NextResponse.json(med)
 }
 
@@ -38,5 +42,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     where: { id },
     data: { deletedAt: new Date() },
   })
+  revalidatePath('/inventory')
+  revalidatePath('/inventory/restock')
+  revalidatePath('/sessions/new')
   return NextResponse.json({ ok: true })
 }

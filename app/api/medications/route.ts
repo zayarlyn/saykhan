@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { createMedicationSchema } from '@/lib/validations/medication'
 
@@ -36,5 +37,8 @@ export async function POST(req: NextRequest) {
     },
     include: { category: true },
   })
+  revalidatePath('/inventory')
+  revalidatePath('/inventory/restock')
+  revalidatePath('/sessions/new')
   return NextResponse.json(med, { status: 201 })
 }

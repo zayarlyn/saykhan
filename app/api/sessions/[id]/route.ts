@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { updateSessionSchema } from '@/lib/validations/session'
 
@@ -40,6 +41,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     })
   })
 
+  revalidatePath('/sessions')
+  revalidatePath('/dashboard')
   return NextResponse.json({ ok: true })
 }
 
@@ -124,5 +127,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     throw e
   }
 
+  revalidatePath('/sessions')
+  revalidatePath('/dashboard')
   return NextResponse.json(updated)
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { createPatientSchema } from '@/lib/validations/patient'
 
@@ -17,5 +18,7 @@ export async function POST(req: NextRequest) {
   const parsed = createPatientSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
   const patient = await prisma.patient.create({ data: { name: parsed.data.name } })
+  revalidatePath('/sessions')
+  revalidatePath('/sessions/new')
   return NextResponse.json(patient, { status: 201 })
 }

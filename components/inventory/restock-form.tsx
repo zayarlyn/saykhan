@@ -57,6 +57,7 @@ function MedicationSelector({ medications, value, onChange }: MedicationSelector
 	}, [])
 
 	const trimmed = query.trim()
+	console.log(medications)
 	const filtered = medications.filter((m) => m.name.toLowerCase().includes(trimmed.toLowerCase()))
 	const selected = value ? medications.find((m) => m.id === value) : null
 
