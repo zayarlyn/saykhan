@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
 		ignoreBuildErrors: true,
 	},
 	turbopack: {},
+	experimental: {
+		staleTimes: {
+			dynamic: 0,
+		},
+	},
 }
 
 export default withPWA({
