@@ -47,19 +47,19 @@ export default async function SessionsPage({
           <Link href="/sessions/new" className={buttonVariants()}>New Session</Link>
         )}
       </div>
+      <Suspense>
+        <SessionsTabs />
+      </Suspense>
       {tab === 'sessions' && (
-        <>
+        <div className="space-y-3">
           <DateRangeSelector activePreset={activePreset} from={activePreset === 'custom' ? from : undefined} to={activePreset === 'custom' ? to : undefined} basePath="/sessions" />
           {Array.isArray(sessions) && sessions.length > 0 && (
             <div className="text-sm text-gray-600">
               Total: <span className="font-semibold text-gray-900">{sessions.reduce((sum, s) => sum + Number(s.paymentAmount), 0).toLocaleString()} MMK</span>
             </div>
           )}
-        </>
+        </div>
       )}
-      <Suspense>
-        <SessionsTabs />
-      </Suspense>
       <div className="pt-1">
         {tab === 'sessions' && (
           <SessionTable
