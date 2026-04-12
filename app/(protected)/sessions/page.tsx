@@ -1,24 +1,27 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
+import { resolveRange } from '@/lib/date-range'
 import { buttonVariants } from '@/components/ui/button'
 import { SessionTable } from '@/components/sessions/session-table'
 import { PatientTable } from '@/components/patients/patient-table'
 import { SessionsTabs } from '@/components/sessions/sessions-tabs'
+import { DateRangeSelector } from '@/components/dashboard/date-range-selector'
 
 export const dynamic = 'force-dynamic'
 
 export default async function SessionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; preset?: string; from?: string; to?: string }>
 }) {
-  const { tab = 'sessions' } = await searchParams
+  const { tab = 'sessions', preset, from, to } = await searchParams
+  const { start, end, activePreset } = resolveRange(preset, from, to)
 
   const [sessions, patients] = await Promise.all([
     tab === 'sessions'
       ? prisma.patientSession.findMany({
-          where: { deletedAt: null },
+          where: { deletedAt: null, date: { gte: start, lte: end } },
           include: {
             patient: true,
             serviceType: true,
@@ -44,6 +47,9 @@ export default async function SessionsPage({
           <Link href="/sessions/new" className={buttonVariants()}>New Session</Link>
         )}
       </div>
+      {tab === 'sessions' && (
+        <DateRangeSelector activePreset={activePreset} from={activePreset === 'custom' ? from : undefined} to={activePreset === 'custom' ? to : undefined} basePath="/sessions" />
+      )}
       <Suspense>
         <SessionsTabs />
       </Suspense>

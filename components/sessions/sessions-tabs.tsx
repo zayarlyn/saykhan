@@ -13,12 +13,18 @@ export function SessionsTabs() {
   const searchParams = useSearchParams()
   const active = searchParams.get('tab') ?? 'sessions'
 
+  function buildTabHref(tabKey: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', tabKey)
+    return `/sessions?${params.toString()}`
+  }
+
   return (
     <div className="flex gap-1 border-b border-[#e7e8eb]">
       {tabs.map(tab => (
         <Link
           key={tab.key}
-          href={`/sessions?tab=${tab.key}`}
+          href={buildTabHref(tab.key)}
           className={cn(
             'px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px',
             active === tab.key

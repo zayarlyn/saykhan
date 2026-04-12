@@ -5,31 +5,32 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
-const PRESETS = [
-  { id: 'today', label: 'Today', href: '/dashboard?preset=today' },
-  { id: 'yesterday', label: 'Yesterday', href: '/dashboard?preset=yesterday' },
-  { id: 'this-week', label: 'This Week', href: '/dashboard?preset=this-week' },
-  { id: 'this-month', label: 'This Month', href: '/dashboard' },
-  { id: 'last-month', label: 'Last Month', href: '/dashboard?preset=last-month' },
-  { id: 'last-30', label: 'Last 30 Days', href: '/dashboard?preset=last-30' },
-]
-
 interface Props {
   activePreset: string
   from?: string
   to?: string
+  basePath?: string
 }
 
-export function DateRangeSelector({ activePreset, from, to }: Props) {
+export function DateRangeSelector({ activePreset, from, to, basePath = '/dashboard' }: Props) {
   const router = useRouter()
   const isCustom = activePreset === 'custom'
   const [showCustom, setShowCustom] = useState(isCustom)
   const [customFrom, setCustomFrom] = useState(from ?? '')
   const [customTo, setCustomTo] = useState(to ?? '')
 
+  const PRESETS = [
+    { id: 'today', label: 'Today', href: `${basePath}?preset=today` },
+    { id: 'yesterday', label: 'Yesterday', href: `${basePath}?preset=yesterday` },
+    { id: 'this-week', label: 'This Week', href: `${basePath}?preset=this-week` },
+    { id: 'this-month', label: 'This Month', href: basePath },
+    { id: 'last-month', label: 'Last Month', href: `${basePath}?preset=last-month` },
+    { id: 'last-30', label: 'Last 30 Days', href: `${basePath}?preset=last-30` },
+  ]
+
   function applyCustom() {
     if (customFrom && customTo) {
-      router.push(`/dashboard?from=${customFrom}&to=${customTo}`)
+      router.push(`${basePath}?from=${customFrom}&to=${customTo}`)
     }
   }
 
