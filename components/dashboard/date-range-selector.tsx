@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 interface Props {
   activePreset: string
@@ -34,36 +33,32 @@ export function DateRangeSelector({ activePreset, from, to, basePath = '/dashboa
     }
   }
 
+  const handleSelectChange = (preset: string | null) => {
+    if (preset === 'custom') {
+      setShowCustom(true)
+    } else if (preset) {
+      const presetObj = PRESETS.find(p => p.id === preset)
+      if (presetObj) {
+        router.push(presetObj.href)
+      }
+    }
+  }
+
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-1.5">
-        {PRESETS.map(p => (
-          <Link
-            key={p.id}
-            href={p.href}
-            onClick={() => setShowCustom(false)}
-            className={cn(
-              'px-3 py-1 text-sm rounded-full border transition-colors',
-              activePreset === p.id
-                ? 'bg-[#2e37a4] text-white border-[#2e37a4]'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
-            )}
-          >
-            {p.label}
-          </Link>
-        ))}
-        <button
-          onClick={() => setShowCustom(v => !v)}
-          className={cn(
-            'px-3 py-1 text-sm rounded-full border transition-colors',
-            isCustom
-              ? 'bg-[#2e37a4] text-white border-[#2e37a4]'
-              : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
-          )}
-        >
-          Custom
-        </button>
-      </div>
+    <div className="space-y-2 w-full">
+      <Select value={activePreset} onValueChange={handleSelectChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select date range" />
+        </SelectTrigger>
+          <SelectContent>
+            {PRESETS.map(p => (
+              <SelectItem key={p.id} value={p.id}>
+                {p.label}
+              </SelectItem>
+            ))}
+            <SelectItem value="custom">Custom</SelectItem>
+          </SelectContent>
+        </Select>
 
       {showCustom && (
         <div className="flex items-center gap-2 flex-wrap">

@@ -68,14 +68,14 @@ export function SummaryCards({ stats }: { stats: Stats }) {
 							<p className='text-xs text-gray-500 uppercase tracking-wide leading-tight'>{card.label}</p>
 							{hasDetails && <ChevronDown className={cn('size-3.5 text-gray-400 shrink-0 transition-transform', isExpanded && 'rotate-180')} />}
 						</div>
-						<p className={`text-2xl font-bold ${card.color}`}>{Number(card.value).toLocaleString()}</p>
+						<p className={`text-lg sm:text-2xl font-bold ${card.color} break-words`}>{Number(card.value).toLocaleString()}</p>
 
 						{isExpanded && card.details && (
 							<div className='pt-2 border-t space-y-1'>
 								{card.details.map((d) => (
-									<div key={d.label} className='flex items-center justify-between text-xs'>
+									<div key={d.label} className='flex items-center justify-between text-xs gap-2'>
 										<span className='text-gray-500'>{d.label}</span>
-										<span className='font-medium text-gray-700'>{d.value}</span>
+										<span className='font-medium text-gray-700 text-right break-words'>{d.value}</span>
 									</div>
 								))}
 							</div>
