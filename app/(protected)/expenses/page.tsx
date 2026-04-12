@@ -21,6 +21,8 @@ export default async function ExpensesPage({
     orderBy: { date: 'desc' },
   })
 
+  const totalAmount = expenses.reduce((sum, e) => sum + Number(e.amount), 0)
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -28,6 +30,11 @@ export default async function ExpensesPage({
         <Link href="/expenses/new" className={buttonVariants()}>Add Expense</Link>
       </div>
       <DateRangeSelector activePreset={activePreset} from={activePreset === 'custom' ? from : undefined} to={activePreset === 'custom' ? to : undefined} basePath="/expenses" />
+      {expenses.length > 0 && (
+        <div className="text-sm text-gray-600">
+          Total: <span className="font-semibold text-gray-900">{totalAmount.toLocaleString()} MMK</span>
+        </div>
+      )}
       <ExpenseTable expenses={expenses.map(e => ({ ...e, amount: Number(e.amount), date: e.date.toISOString() }))} />
     </div>
   )

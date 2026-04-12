@@ -50,6 +50,11 @@ export default async function SessionsPage({
       {tab === 'sessions' && (
         <DateRangeSelector activePreset={activePreset} from={activePreset === 'custom' ? from : undefined} to={activePreset === 'custom' ? to : undefined} basePath="/sessions" />
       )}
+      {tab === 'sessions' && sessions.length > 0 && (
+        <div className="text-sm text-gray-600">
+          Total: <span className="font-semibold text-gray-900">{sessions.reduce((sum, s) => sum + Number(s.paymentAmount), 0).toLocaleString()} MMK</span>
+        </div>
+      )}
       <Suspense>
         <SessionsTabs />
       </Suspense>
