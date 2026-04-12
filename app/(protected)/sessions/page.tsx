@@ -30,13 +30,13 @@ export default async function SessionsPage({
           },
           orderBy: { date: 'desc' },
         })
-      : Promise.resolve([]),
+      : ([] as Awaited<ReturnType<typeof prisma.patientSession.findMany>>),
     tab === 'patients'
       ? prisma.patient.findMany({
           orderBy: { createdAt: 'desc' },
           include: { _count: { select: { sessions: true } } },
         })
-      : Promise.resolve([]),
+      : ([] as Awaited<ReturnType<typeof prisma.patient.findMany>>),
   ])
 
   return (
@@ -48,12 +48,14 @@ export default async function SessionsPage({
         )}
       </div>
       {tab === 'sessions' && (
-        <DateRangeSelector activePreset={activePreset} from={activePreset === 'custom' ? from : undefined} to={activePreset === 'custom' ? to : undefined} basePath="/sessions" />
-      )}
-      {tab === 'sessions' && sessions.length > 0 && (
-        <div className="text-sm text-gray-600">
-          Total: <span className="font-semibold text-gray-900">{sessions.reduce((sum, s) => sum + Number(s.paymentAmount), 0).toLocaleString()} MMK</span>
-        </div>
+        <>
+          <DateRangeSelector activePreset={activePreset} from={activePreset === 'custom' ? from : undefined} to={activePreset === 'custom' ? to : undefined} basePath="/sessions" />
+          {Array.isArray(sessions) && sessions.length > 0 && (
+            <div className="text-sm text-gray-600">
+              Total: <span className="font-semibold text-gray-900">{sessions.reduce((sum, s) => sum + Number(s.paymentAmount), 0).toLocaleString()} MMK</span>
+            </div>
+          )}
+        </>
       )}
       <Suspense>
         <SessionsTabs />
