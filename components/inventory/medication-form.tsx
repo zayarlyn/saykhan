@@ -48,11 +48,17 @@ export function MedicationForm({ categories, defaultValues, onSubmit, submitLabe
 		register,
 		handleSubmit,
 		setValue,
+		watch,
 		formState: { errors, isSubmitting },
 	} = useForm<MedicationFormData>({
 		resolver: zodResolver(schema) as Resolver<MedicationFormData>,
 		defaultValues: { threshold: 10, unitType: 'pcs', sellingPrice: 0, ...defaultValues },
 	})
+
+	const categoryId = watch('categoryId')
+	const selectedCategoryName = categories.find(c => c.id === categoryId)?.name
+	const unitType = watch('unitType')
+	const selectedUnitLabel = UNIT_TYPES.find(u => u.value === unitType)?.label
 
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className='space-y-4 max-w-md'>
@@ -64,9 +70,13 @@ export function MedicationForm({ categories, defaultValues, onSubmit, submitLabe
 			<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 				<div className='space-y-1'>
 					<Label>Category</Label>
-					<Select onValueChange={(v) => setValue('categoryId', v ?? '')} defaultValue={defaultValues?.categoryId ?? undefined}>
+					<Select onValueChange={(v) => setValue('categoryId', v ?? '')} value={categoryId || ''}>
 						<SelectTrigger className='w-full'>
-							<SelectValue placeholder='Select category' />
+							{selectedCategoryName ? (
+								<span>{selectedCategoryName}</span>
+							) : (
+								<SelectValue placeholder='Select category' />
+							)}
 						</SelectTrigger>
 						<SelectContent>
 							{categories.map((c) => (
@@ -82,10 +92,14 @@ export function MedicationForm({ categories, defaultValues, onSubmit, submitLabe
 					<Label>Unit Type</Label>
 					<Select
 						onValueChange={(v) => setValue('unitType', v ?? 'pcs')}
-						defaultValue={defaultValues?.unitType ?? 'pcs'}
+						value={unitType}
 					>
 						<SelectTrigger className='w-full'>
-							<SelectValue placeholder='Select unit' />
+							{selectedUnitLabel ? (
+								<span>{selectedUnitLabel}</span>
+							) : (
+								<SelectValue placeholder='Select unit' />
+							)}
 						</SelectTrigger>
 						<SelectContent>
 							{UNIT_TYPES.map((u) => (
