@@ -55,6 +55,9 @@ model Medication {
   sessionMeds  SessionMedication[]
   createdAt    DateTime            @default(now())
   deletedAt    DateTime?
+
+  @@index([deletedAt])
+  @@index([categoryId])
 }
 
 model RestockBatch {
@@ -75,6 +78,10 @@ model RestockBatchItem {
   costPerUnit    Decimal      @db.Decimal(10, 2)
   expiryDate     DateTime?
   createdAt      DateTime     @default(now())
+
+  @@index([restockBatchId])
+  @@index([medicationId])
+  @@index([expiryDate])
 }
 
 model PatientSession {
@@ -91,6 +98,10 @@ model PatientSession {
   medications     SessionMedication[]
   createdAt       DateTime            @default(now())
   deletedAt       DateTime?
+
+  @@index([date])
+  @@index([deletedAt])
+  @@index([patientId])
 }
 
 model SessionMedication {
@@ -103,6 +114,9 @@ model SessionMedication {
   unitCost     Decimal        @db.Decimal(10, 2)
   sellingPrice Decimal        @db.Decimal(10, 2)
   createdAt    DateTime       @default(now())
+
+  @@index([sessionId])
+  @@index([medicationId])
 }
 
 model Expense {
@@ -116,6 +130,9 @@ model Expense {
   restockBatchId String?          @unique
   restockBatch   RestockBatch?    @relation(fields: [restockBatchId], references: [id])
   createdAt      DateTime         @default(now())
+
+  @@index([date])
+  @@index([categoryId])
 }
 
 enum ExpenseType {

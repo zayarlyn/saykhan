@@ -19,18 +19,33 @@ export default async function DashboardPage({
 	const now = new Date()
 	const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
-	const [sessions, expenses, lowStockMeds, nearExpiredItems] = await Promise.all([
-		prisma.patientSession.findMany({
-			where: { date: { gte: start, lte: end } },
-			include: { medications: true },
+	// Get aggregations for dashboard stats
+	const [revenueAgg, inventoryCostResult, expenseAgg, lowStockMeds, nearExpiredItems] = await Promise.all([
+		// Revenue: sum of payment amounts
+		prisma.patientSession.aggregate({
+			where: { date: { gte: start, lte: end }, deletedAt: null },
+			_sum: { paymentAmount: true },
+			_count: { id: true },
+			_max: { paymentAmount: true },
 		}),
-		prisma.expense.findMany({
-			where: { date: { gte: start, lte: end }, type: 'MANUAL' },
-			include: { category: { select: { name: true } } },
-		}),
-		prisma.$queryRaw<Array<{ id: string; name: string; stock: number; threshold: number }>>`
-      SELECT id, name, stock, threshold FROM "Medication" WHERE stock <= threshold
+		// Inventory cost: sum of (quantity * unitCost) for sessions in date range
+		prisma.$queryRaw<[{ total: string }]>`
+      SELECT COALESCE(SUM(sm.quantity * sm."unitCost"), 0)::text AS total
+      FROM "SessionMedication" sm
+      JOIN "PatientSession" ps ON ps.id = sm."sessionId"
+      WHERE ps.date >= ${start} AND ps.date <= ${end}
+        AND ps."deletedAt" IS NULL
     `,
+		// Expenses: sum of amounts
+		prisma.expense.aggregate({
+			where: { date: { gte: start, lte: end }, type: 'MANUAL' },
+			_sum: { amount: true },
+		}),
+		// Low stock medications
+		prisma.$queryRaw<Array<{ id: string; name: string; stock: number; threshold: number }>>`
+      SELECT id, name, stock, threshold FROM "Medication" WHERE stock <= threshold AND "deletedAt" IS NULL
+    `,
+		// Near expired items
 		prisma.restockBatchItem.findMany({
 			where: { expiryDate: { not: null, lte: in30Days } },
 			include: { medication: { select: { id: true, name: true } }, restockBatch: { select: { id: true } } },
@@ -38,36 +53,43 @@ export default async function DashboardPage({
 		}),
 	])
 
-	type Session = (typeof sessions)[number]
-	type SessionMed = Session['medications'][number]
-	const revenue = sessions.reduce((sum: number, s: Session) => sum + Number(s.paymentAmount), 0)
-	const inventoryCost = sessions.reduce((sum: number, s: Session) => sum + s.medications.reduce((mSum: number, m: SessionMed) => mSum + m.quantity * Number(m.unitCost), 0), 0)
-	const adjustedExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0)
+	// Extract stats from aggregations
+	const revenue = Number(revenueAgg._sum.paymentAmount ?? 0)
+	const sessionCount = revenueAgg._count.id
+	const maxSessionAmount = revenueAgg._max.paymentAmount ? Number(revenueAgg._max.paymentAmount) : 0
+	const inventoryCost = Number(inventoryCostResult[0].total)
+	const adjustedExpenses = Number(expenseAgg._sum.amount ?? 0)
 	const netProfit = revenue - inventoryCost - adjustedExpenses
 
-	// Revenue details
-	const sessionCount = sessions.length
-	const maxSessionAmount = sessions.length > 0 ? Math.max(...sessions.map(s => Number(s.paymentAmount))) : 0
-	const patientIds = [...new Set(sessions.map(s => s.patientId))]
-	const patientFirstSessions = patientIds.length > 0
-		? await prisma.patientSession.groupBy({
-				by: ['patientId'],
-				where: { patientId: { in: patientIds } },
-				_min: { date: true },
-		  })
-		: []
-	const newPatientCount = patientFirstSessions.filter(p => p._min.date! >= start).length
+	// Get new patient count (patients with first session in the date range)
+	const newPatientSessions = await prisma.patientSession.groupBy({
+		by: ['patientId'],
+		where: { date: { gte: start, lte: end }, deletedAt: null },
+		_min: { date: true },
+	})
+	const newPatientCount = newPatientSessions.filter(p => p._min.date! >= start).length
 
-	// Inventory cost details
-	const uniqueMedCount = new Set(sessions.flatMap(s => s.medications.map(m => m.medicationId))).size
+	// Get unique medication count
+	const uniqueMedCount = (await prisma.sessionMedication.findMany({
+		where: { session: { date: { gte: start, lte: end }, deletedAt: null } },
+		distinct: ['medicationId'],
+		select: { medicationId: true },
+	})).length
 
-	// Expense details
-	const categoryTotals = expenses.reduce((acc, e) => {
-		const key = e.category?.name ?? 'Uncategorized'
-		acc[key] = (acc[key] ?? 0) + Number(e.amount)
-		return acc
-	}, {} as Record<string, number>)
-	const topExpenseCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] ?? null
+	// Get top expense category
+	const topExpenseCategories = await prisma.expense.groupBy({
+		by: ['categoryId'],
+		where: { date: { gte: start, lte: end }, type: 'MANUAL' },
+		_sum: { amount: true },
+		orderBy: { _sum: { amount: 'desc' } },
+		take: 1,
+	})
+	const topExpenseCategory = topExpenseCategories.length > 0 && topExpenseCategories[0].categoryId
+		? await prisma.expenseCategory.findUnique({
+				where: { id: topExpenseCategories[0].categoryId },
+				select: { name: true },
+		  }).then(cat => cat ? [cat.name, Number(topExpenseCategories[0]._sum.amount ?? 0)] as [string, number] : null)
+		: null
 
 	return (
 		<div className='space-y-6'>

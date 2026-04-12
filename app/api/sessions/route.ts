@@ -36,8 +36,12 @@ export async function POST(req: NextRequest) {
   const { medications, ...sessionData } = parsed.data
 
   // Check stock for all medications before transacting
+  const medIds = medications.map(m => m.medicationId)
+  const foundMeds = await prisma.medication.findMany({ where: { id: { in: medIds } } })
+  const medMap = new Map(foundMeds.map(m => [m.id, m]))
+
   for (const med of medications) {
-    const medication = await prisma.medication.findUnique({ where: { id: med.medicationId } })
+    const medication = medMap.get(med.medicationId)
     if (!medication) return NextResponse.json({ error: `Medication ${med.medicationId} not found` }, { status: 404 })
     if (medication.stock < med.quantity) {
       return NextResponse.json(
