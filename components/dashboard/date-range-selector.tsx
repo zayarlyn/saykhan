@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DateTimePicker } from '@/components/ui/datetime-picker'
 
 interface Props {
   activePreset: string
@@ -15,8 +16,8 @@ export function DateRangeSelector({ activePreset, from, to, basePath = '/dashboa
   const router = useRouter()
   const isCustom = activePreset === 'custom'
   const [showCustom, setShowCustom] = useState(isCustom)
-  const [customFrom, setCustomFrom] = useState(from ?? '')
-  const [customTo, setCustomTo] = useState(to ?? '')
+  const [customFrom, setCustomFrom] = useState(from ? new Date(from) : undefined)
+  const [customTo, setCustomTo] = useState(to ? new Date(to) : undefined)
 
   const PRESETS = [
     { id: 'today', label: 'Today', href: `${basePath}?preset=today` },
@@ -29,7 +30,7 @@ export function DateRangeSelector({ activePreset, from, to, basePath = '/dashboa
 
   function applyCustom() {
     if (customFrom && customTo) {
-      router.push(`${basePath}?from=${customFrom}&to=${customTo}`)
+      router.push(`${basePath}?from=${customFrom.toISOString()}&to=${customTo.toISOString()}`)
     }
   }
 
@@ -62,18 +63,16 @@ export function DateRangeSelector({ activePreset, from, to, basePath = '/dashboa
 
       {showCustom && (
         <div className="flex items-center gap-2 flex-wrap">
-          <input
-            type="date"
+          <DateTimePicker
             value={customFrom}
-            onChange={e => setCustomFrom(e.target.value)}
-            className="border rounded-md px-2 py-1.5 text-sm"
+            onChange={setCustomFrom}
+            placeholder="From date"
           />
           <span className="text-gray-400 text-sm">to</span>
-          <input
-            type="date"
+          <DateTimePicker
             value={customTo}
-            onChange={e => setCustomTo(e.target.value)}
-            className="border rounded-md px-2 py-1.5 text-sm"
+            onChange={setCustomTo}
+            placeholder="To date"
           />
           <button
             onClick={applyCustom}
