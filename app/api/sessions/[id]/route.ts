@@ -21,7 +21,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const session = await prisma.patientSession.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: { medications: true },
   })
   if (!session) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
 
   const existing = await prisma.patientSession.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: { medications: true },
   })
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
