@@ -1,6 +1,11 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { BackButton } from '@/components/layout/back-button'
+import { RestockDeleteButton } from '@/components/inventory/restock-delete-button'
+import { Button } from '@/components/ui/button'
+import { Pencil } from 'lucide-react'
+
 export const dynamic = 'force-dynamic'
 
 export default async function RestockDetailPage({
@@ -32,9 +37,20 @@ export default async function RestockDetailPage({
   return (
     <div className="space-y-6 max-w-2xl">
       <BackButton label="Inventory" />
-      <div>
-        <h1 className="text-2xl font-bold">Restock Batch</h1>
-        <p className="text-sm text-gray-500 mt-0.5">{new Date(batch.date).toLocaleDateString()}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Restock Batch</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{new Date(batch.date).toLocaleDateString()}</p>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <Link href={`/inventory/restock/${id}/edit`}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Pencil className="size-4" />
+              Edit
+            </Button>
+          </Link>
+          <RestockDeleteButton restockId={id} />
+        </div>
       </div>
 
       <>

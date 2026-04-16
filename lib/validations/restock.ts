@@ -11,3 +11,5 @@ export const createRestockSchema = z.object({
   date: z.string().datetime(),
   items: z.array(restockItemSchema).min(1, 'At least one item required'),
 })
+
+export const updateRestockSchema = createRestockSchema

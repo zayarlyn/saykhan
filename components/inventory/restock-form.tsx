@@ -120,7 +120,17 @@ function MedicationSelector({ medications, value, onChange }: MedicationSelector
 	)
 }
 
-export function RestockForm({ medications }: { medications: Medication[] }) {
+interface RestockFormProps {
+	medications: Medication[]
+	mode?: 'create' | 'edit'
+	restockId?: string
+	defaultValues?: {
+		date: string
+		items: Array<{ medicationId: string; quantity: number; costPerUnit: number; expiryDate?: string }>
+	}
+}
+
+export function RestockForm({ medications, mode = 'create', restockId, defaultValues }: RestockFormProps) {
 	const router = useRouter()
 	const [error, setError] = useState('')
 	const {
@@ -132,7 +142,7 @@ export function RestockForm({ medications }: { medications: Medication[] }) {
 		formState: { isSubmitting },
 	} = useForm<FormData>({
 		resolver: zodResolver(schema) as any,
-		defaultValues: {
+		defaultValues: defaultValues || {
 			date: new Date().toISOString(),
 			items: [{ medicationId: '', quantity: 1, costPerUnit: 0, expiryDate: '' }],
 		},
@@ -151,8 +161,10 @@ export function RestockForm({ medications }: { medications: Medication[] }) {
 				expiryDate: item.expiryDate ? new Date(item.expiryDate).toISOString() : null,
 			})),
 		}
-		const res = await fetch('/api/restock', {
-			method: 'POST',
+		const url = mode === 'edit' && restockId ? `/api/restock/${restockId}` : '/api/restock'
+		const method = mode === 'edit' ? 'PATCH' : 'POST'
+		const res = await fetch(url, {
+			method,
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body),
 		})
@@ -212,7 +224,7 @@ export function RestockForm({ medications }: { medications: Medication[] }) {
 			</div>
 			{error && <p className='text-sm text-red-500'>{error}</p>}
 			<Button type='submit' disabled={isSubmitting}>
-				Save Restock
+				{mode === 'edit' ? 'Update Restock' : 'Save Restock'}
 			</Button>
 		</form>
 	)
