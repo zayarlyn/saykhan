@@ -7,6 +7,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     where: { id },
     include: {
       items: {
+        where: { medication: { deletedAt: null } },
         include: { medication: { select: { name: true } } },
         orderBy: { createdAt: 'asc' },
       },

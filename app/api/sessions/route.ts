@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
 
   // Check stock for all medications before transacting
   const medIds = medications.map(m => m.medicationId)
-  const foundMeds = await prisma.medication.findMany({ where: { id: { in: medIds } } })
+  const foundMeds = await prisma.medication.findMany({ where: { id: { in: medIds }, deletedAt: null } })
   const medMap = new Map(foundMeds.map(m => [m.id, m]))
 
   for (const med of medications) {
