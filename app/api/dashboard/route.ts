@@ -8,14 +8,14 @@ export async function GET() {
 
   const [sessions, expenses, lowStock] = await Promise.all([
     prisma.patientSession.findMany({
-      where: { date: { gte: startOfMonth, lte: endOfMonth } },
+      where: { date: { gte: startOfMonth, lte: endOfMonth }, deletedAt: null },
       include: { medications: true },
     }),
     prisma.expense.findMany({
       where: { date: { gte: startOfMonth, lte: endOfMonth } },
     }),
     prisma.$queryRaw<Array<{ id: string; name: string; stock: number; threshold: number }>>`
-      SELECT id, name, stock, threshold FROM "Medication" WHERE stock <= threshold
+      SELECT id, name, stock, threshold FROM "Medication" WHERE stock <= threshold AND "deletedAt" IS NULL
     `,
   ])
 
