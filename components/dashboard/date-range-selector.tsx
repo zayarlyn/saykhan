@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { DateTimePicker } from '@/components/ui/datetime-picker'
+import { DatePicker } from '@/components/ui/date-picker'
 
 interface Props {
   activePreset: string
@@ -16,8 +16,8 @@ export function DateRangeSelector({ activePreset, from, to, basePath = '/dashboa
   const router = useRouter()
   const isCustom = activePreset === 'custom'
   const [showCustom, setShowCustom] = useState(isCustom)
-  const [customFrom, setCustomFrom] = useState(from ? new Date(from) : undefined)
-  const [customTo, setCustomTo] = useState(to ? new Date(to) : undefined)
+  const [customFrom, setCustomFrom] = useState(from ? new Date(from + 'T00:00:00') : undefined)
+  const [customTo, setCustomTo] = useState(to ? new Date(to + 'T00:00:00') : undefined)
 
   const PRESETS = [
     { id: 'today', label: 'Today', href: `${basePath}?preset=today` },
@@ -30,7 +30,9 @@ export function DateRangeSelector({ activePreset, from, to, basePath = '/dashboa
 
   function applyCustom() {
     if (customFrom && customTo) {
-      router.push(`${basePath}?from=${customFrom.toISOString()}&to=${customTo.toISOString()}`)
+      const fromStr = customFrom.toISOString().split('T')[0]
+      const toStr = customTo.toISOString().split('T')[0]
+      router.push(`${basePath}?from=${fromStr}&to=${toStr}`)
     }
   }
 
@@ -63,13 +65,13 @@ export function DateRangeSelector({ activePreset, from, to, basePath = '/dashboa
 
       {showCustom && (
         <div className="flex items-center gap-2 flex-wrap">
-          <DateTimePicker
+          <DatePicker
             value={customFrom}
             onChange={setCustomFrom}
             placeholder="From date"
           />
           <span className="text-gray-400 text-sm">to</span>
-          <DateTimePicker
+          <DatePicker
             value={customTo}
             onChange={setCustomTo}
             placeholder="To date"
