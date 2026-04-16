@@ -3,18 +3,16 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { DeleteDialog } from '@/components/ui/delete-dialog'
 import { Trash2 } from 'lucide-react'
 
 export function RestockDeleteButton({ restockId }: { restockId: string }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   async function handleDelete() {
-    if (!confirm('Are you sure you want to delete this restock batch? This will decrement medication stock accordingly.')) {
-      return
-    }
-
     setIsLoading(true)
     setError('')
 
@@ -32,13 +30,14 @@ export function RestockDeleteButton({ restockId }: { restockId: string }) {
       setError('An error occurred while deleting')
     } finally {
       setIsLoading(false)
+      setDialogOpen(false)
     }
   }
 
   return (
     <div>
       <Button
-        onClick={handleDelete}
+        onClick={() => setDialogOpen(true)}
         disabled={isLoading}
         variant="destructive"
         size="sm"
@@ -48,6 +47,14 @@ export function RestockDeleteButton({ restockId }: { restockId: string }) {
         {isLoading ? 'Deleting...' : 'Delete'}
       </Button>
       {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+      <DeleteDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title="Delete Restock Batch"
+        description="Are you sure you want to delete this restock batch? This will decrement medication stock accordingly."
+        onConfirm={handleDelete}
+        isLoading={isLoading}
+      />
     </div>
   )
 }
