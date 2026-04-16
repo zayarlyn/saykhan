@@ -47,7 +47,7 @@ export default async function DashboardPage({
     `,
 		// Near expired items
 		prisma.restockBatchItem.findMany({
-			where: { expiryDate: { not: null, lte: in30Days } },
+			where: { expiryDate: { not: null, lte: in30Days }, medication: { deletedAt: null } },
 			include: { medication: { select: { id: true, name: true } }, restockBatch: { select: { id: true } } },
 			orderBy: { expiryDate: 'asc' },
 		}),
