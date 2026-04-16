@@ -12,8 +12,9 @@ import { cn } from '@/lib/utils'
 interface Medication { id: string; name: string; cost: number; sellingPrice: number }
 
 function MedicationDropdown({ medications, value, onChange }: { medications: Medication[]; value?: string; onChange: (id: string) => void }) {
+	const selected = value ? medications.find(m => m.id === value) : null
 	const [open, setOpen] = useState(false)
-	const [query, setQuery] = useState('')
+	const [query, setQuery] = useState(selected?.name ?? '')
 	const containerRef = useRef<HTMLDivElement>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
 
@@ -27,9 +28,12 @@ function MedicationDropdown({ medications, value, onChange }: { medications: Med
 		return () => document.removeEventListener('mousedown', handle)
 	}, [])
 
+	useEffect(() => {
+		setQuery(selected?.name ?? '')
+	}, [value])
+
 	const trimmed = query.trim()
 	const filtered = medications.filter(m => m.name.toLowerCase().includes(trimmed.toLowerCase()))
-	const selected = value ? medications.find(m => m.id === value) : null
 
 	function selectMed(med: Medication) {
 		setQuery(med.name)
