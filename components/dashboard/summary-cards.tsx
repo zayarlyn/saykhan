@@ -8,6 +8,7 @@ interface Stats {
 	revenue: number
 	inventoryCost: number
 	adjustedExpenses: number
+	restockCost: number
 	netProfit: number
 	sessionCount: number
 	maxSessionAmount: number
@@ -39,12 +40,18 @@ export function SummaryCards({ stats }: { stats: Stats }) {
 			details: [{ label: 'Medications used', value: stats.uniqueMedCount }],
 		},
 		{
-			label: 'Expenses',
+			label: 'Other Expenses',
 			value: stats.adjustedExpenses,
 			color: 'text-orange-600',
 			details: stats.topExpenseCategory
 				? [{ label: 'Top expense', value: `${stats.topExpenseCategory[0]} — ${stats.topExpenseCategory[1].toLocaleString()} MMK` }]
 				: [{ label: 'Top expense', value: '—' }],
+		},
+		{
+			label: 'Restock Cost',
+			value: stats.restockCost,
+			color: 'text-purple-600',
+			details: null,
 		},
 		{
 			label: 'Net Profit',
@@ -56,24 +63,9 @@ export function SummaryCards({ stats }: { stats: Stats }) {
 
 	return (
 		<div className='space-y-4'>
-			<div className='grid grid-cols-2 gap-4'>
-				{[
-					{
-						label: 'Opening Balance',
-						value: stats.openingBalance,
-						color: 'text-gray-700',
-					},
-					{
-						label: 'Closing Balance',
-						value: stats.closingBalance,
-						color: stats.closingBalance >= 0 ? 'text-green-700' : 'text-red-600',
-					},
-				].map((card) => (
-					<div key={card.label} className='bg-white border rounded-lg p-4 space-y-1'>
-						<p className='text-xs text-gray-500 uppercase tracking-wide leading-tight'>{card.label}</p>
-						<p className={`text-lg sm:text-2xl font-bold ${card.color} break-words`}>{Number(card.value).toLocaleString()}</p>
-					</div>
-				))}
+			<div className='bg-white border rounded-lg p-4 space-y-1'>
+				<p className='text-xs text-gray-500 uppercase tracking-wide leading-tight'>Opening Balance</p>
+				<p className='text-lg sm:text-2xl font-bold text-gray-700 break-words'>{Number(stats.openingBalance).toLocaleString()}</p>
 			</div>
 
 			<div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
@@ -106,6 +98,11 @@ export function SummaryCards({ stats }: { stats: Stats }) {
 						</div>
 					)
 				})}
+			</div>
+
+			<div className='bg-white border rounded-lg p-4 space-y-1'>
+				<p className='text-xs text-gray-500 uppercase tracking-wide leading-tight'>Closing Balance</p>
+				<p className={`text-lg sm:text-2xl font-bold break-words ${stats.closingBalance >= 0 ? 'text-green-700' : 'text-red-600'}`}>{Number(stats.closingBalance).toLocaleString()}</p>
 			</div>
 		</div>
 	)

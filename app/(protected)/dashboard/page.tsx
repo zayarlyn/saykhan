@@ -138,7 +138,7 @@ export default async function DashboardPage({
 				}))}
 			/>
 			<SummaryCards stats={{
-				revenue, inventoryCost, adjustedExpenses, netProfit,
+				revenue, inventoryCost, adjustedExpenses, restockCost: inRestockCost, netProfit,
 				sessionCount, maxSessionAmount, newPatientCount,
 				uniqueMedCount,
 				topExpenseCategory,
