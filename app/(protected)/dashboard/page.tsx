@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { resolveRange } from '@/lib/date-range'
+import { computeBalances } from '@/lib/balance'
 import { SummaryCards } from '@/components/dashboard/summary-cards'
 import { LowStockList } from '@/components/dashboard/low-stock-list'
 import { NearExpiredList } from '@/components/dashboard/near-expired-list'
@@ -20,7 +21,7 @@ export default async function DashboardPage({
 	const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
 	// Get aggregations for dashboard stats
-	const [revenueAgg, inventoryCostResult, expenseAgg, lowStockMeds, nearExpiredItems] = await Promise.all([
+	const [revenueAgg, inventoryCostResult, expenseAgg, restockExpenseAgg, lowStockMeds, nearExpiredItems, preRangeResult] = await Promise.all([
 		// Revenue: sum of payment amounts
 		prisma.patientSession.aggregate({
 			where: { date: { gte: start, lte: end }, deletedAt: null },
@@ -41,6 +42,11 @@ export default async function DashboardPage({
 			where: { date: { gte: start, lte: end }, type: 'MANUAL' },
 			_sum: { amount: true },
 		}),
+		// In-range restock expenses for closing balance
+		prisma.expense.aggregate({
+			where: { date: { gte: start, lte: end }, type: 'RESTOCK' },
+			_sum: { amount: true },
+		}),
 		// Low stock medications
 		prisma.$queryRaw<Array<{ id: string; name: string; stock: number; threshold: number }>>`
       SELECT id, name, stock, threshold FROM "Medication" WHERE stock <= threshold AND "deletedAt" IS NULL
@@ -51,6 +57,13 @@ export default async function DashboardPage({
 			include: { medication: { select: { id: true, name: true } }, restockBatch: { select: { id: true } } },
 			orderBy: { expiryDate: 'asc' },
 		}),
+		// Pre-range totals for opening balance calculation
+		prisma.$queryRaw<[{ revenue: string; inventory_cost: string; restock_cost: string }]>`
+      SELECT
+        (SELECT COALESCE(SUM(ps."paymentAmount"), 0) FROM "PatientSession" ps WHERE ps.date < ${start} AND ps."deletedAt" IS NULL)::text AS revenue,
+        (SELECT COALESCE(SUM(sm.quantity * sm."unitCost"), 0) FROM "SessionMedication" sm JOIN "PatientSession" ps ON ps.id = sm."sessionId" WHERE ps.date < ${start} AND ps."deletedAt" IS NULL)::text AS inventory_cost,
+        (SELECT COALESCE(SUM(e.amount), 0) FROM "Expense" e WHERE e.date < ${start} AND e.type = 'RESTOCK')::text AS restock_cost
+    `,
 	])
 
 	// Extract stats from aggregations
@@ -60,6 +73,18 @@ export default async function DashboardPage({
 	const inventoryCost = Number(inventoryCostResult[0].total)
 	const adjustedExpenses = Number(expenseAgg._sum.amount ?? 0)
 	const netProfit = revenue - inventoryCost - adjustedExpenses
+
+	const initialBalance = Number(process.env.OPENING_BALANCE ?? 0)
+	const inRestockCost = Number(restockExpenseAgg._sum.amount ?? 0)
+	const { openingBalance, closingBalance } = computeBalances({
+		initialBalance,
+		preRevenue: Number(preRangeResult[0].revenue),
+		preInventoryCost: Number(preRangeResult[0].inventory_cost),
+		preRestockCost: Number(preRangeResult[0].restock_cost),
+		inRevenue: revenue,
+		inInventoryCost: inventoryCost,
+		inRestockCost,
+	})
 
 	// Get new patient count (patients with first session in the date range)
 	const newPatientSessions = await prisma.patientSession.groupBy({
@@ -116,6 +141,8 @@ export default async function DashboardPage({
 				sessionCount, maxSessionAmount, newPatientCount,
 				uniqueMedCount,
 				topExpenseCategory,
+				openingBalance,
+				closingBalance,
 			}} />
 		</div>
 	)
