@@ -14,6 +14,8 @@ interface Stats {
 	newPatientCount: number
 	uniqueMedCount: number
 	topExpenseCategory: [string, number] | null
+	openingBalance: number
+	closingBalance: number
 }
 
 export function SummaryCards({ stats }: { stats: Stats }) {
@@ -53,36 +55,58 @@ export function SummaryCards({ stats }: { stats: Stats }) {
 	]
 
 	return (
-		<div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-			{cards.map((card) => {
-				const isExpanded = expanded === card.label
-				const hasDetails = card.details !== null
-
-				return (
-					<div
-						key={card.label}
-						className={cn('bg-white border rounded-lg p-4 space-y-1', hasDetails && 'cursor-pointer select-none', isExpanded && 'ring-1 ring-gray-200')}
-						onClick={() => hasDetails && setExpanded(isExpanded ? null : card.label)}
-					>
-						<div className='flex items-center justify-between gap-1'>
-							<p className='text-xs text-gray-500 uppercase tracking-wide leading-tight'>{card.label}</p>
-							{hasDetails && <ChevronDown className={cn('size-3.5 text-gray-400 shrink-0 transition-transform', isExpanded && 'rotate-180')} />}
-						</div>
+		<div className='space-y-4'>
+			<div className='grid grid-cols-2 gap-4'>
+				{[
+					{
+						label: 'Opening Balance',
+						value: stats.openingBalance,
+						color: 'text-gray-700',
+					},
+					{
+						label: 'Closing Balance',
+						value: stats.closingBalance,
+						color: stats.closingBalance >= 0 ? 'text-green-700' : 'text-red-600',
+					},
+				].map((card) => (
+					<div key={card.label} className='bg-white border rounded-lg p-4 space-y-1'>
+						<p className='text-xs text-gray-500 uppercase tracking-wide leading-tight'>{card.label}</p>
 						<p className={`text-lg sm:text-2xl font-bold ${card.color} break-words`}>{Number(card.value).toLocaleString()}</p>
-
-						{isExpanded && card.details && (
-							<div className='pt-2 border-t space-y-1'>
-								{card.details.map((d) => (
-									<div key={d.label} className='flex items-center justify-between text-xs gap-2'>
-										<span className='text-gray-500'>{d.label}</span>
-										<span className='font-medium text-gray-700 text-right break-words'>{d.value}</span>
-									</div>
-								))}
-							</div>
-						)}
 					</div>
-				)
-			})}
+				))}
+			</div>
+
+			<div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
+				{cards.map((card) => {
+					const isExpanded = expanded === card.label
+					const hasDetails = card.details !== null
+
+					return (
+						<div
+							key={card.label}
+							className={cn('bg-white border rounded-lg p-4 space-y-1', hasDetails && 'cursor-pointer select-none', isExpanded && 'ring-1 ring-gray-200')}
+							onClick={() => hasDetails && setExpanded(isExpanded ? null : card.label)}
+						>
+							<div className='flex items-center justify-between gap-1'>
+								<p className='text-xs text-gray-500 uppercase tracking-wide leading-tight'>{card.label}</p>
+								{hasDetails && <ChevronDown className={cn('size-3.5 text-gray-400 shrink-0 transition-transform', isExpanded && 'rotate-180')} />}
+							</div>
+							<p className={`text-lg sm:text-2xl font-bold ${card.color} break-words`}>{Number(card.value).toLocaleString()}</p>
+
+							{isExpanded && card.details && (
+								<div className='pt-2 border-t space-y-1'>
+									{card.details.map((d) => (
+										<div key={d.label} className='flex items-center justify-between text-xs gap-2'>
+											<span className='text-gray-500'>{d.label}</span>
+											<span className='font-medium text-gray-700 text-right break-words'>{d.value}</span>
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+					)
+				})}
+			</div>
 		</div>
 	)
 }
