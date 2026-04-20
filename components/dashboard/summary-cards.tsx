@@ -61,15 +61,17 @@ export function SummaryCards({ stats }: { stats: Stats }) {
 		},
 	]
 
+	const openingCard = {
+		label: 'Opening Balance',
+		value: stats.openingBalance,
+		color: 'text-gray-700',
+		details: null,
+	}
+
 	return (
 		<div className='space-y-4'>
-			<div className='bg-white border rounded-lg p-4 space-y-1'>
-				<p className='text-xs text-gray-500 uppercase tracking-wide leading-tight'>Opening Balance</p>
-				<p className='text-lg sm:text-2xl font-bold text-gray-700 break-words'>{Number(stats.openingBalance).toLocaleString()}</p>
-			</div>
-
 			<div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-				{cards.map((card) => {
+				{[openingCard, ...cards].map((card) => {
 					const isExpanded = expanded === card.label
 					const hasDetails = card.details !== null
 
