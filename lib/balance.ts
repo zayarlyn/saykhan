@@ -1,4 +1,4 @@
-interface BalanceInput {
+export interface BalanceInput {
   initialBalance?: number
   preRevenue: number
   preInventoryCost: number
