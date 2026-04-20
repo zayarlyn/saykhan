@@ -74,7 +74,7 @@ export default async function DashboardPage({
 	const adjustedExpenses = Number(expenseAgg._sum.amount ?? 0)
 	const netProfit = revenue - inventoryCost - adjustedExpenses
 
-	const initialBalance = Number(process.env.OPENING_BALANCE ?? 0)
+	const initialBalance = Number(process.env.OPENING_BALANCE) || 0
 	const inRestockCost = Number(restockExpenseAgg._sum.amount ?? 0)
 	const { openingBalance, closingBalance } = computeBalances({
 		initialBalance,
