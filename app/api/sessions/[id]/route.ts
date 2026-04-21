@@ -63,27 +63,35 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   let updated
   try {
     updated = await prisma.$transaction(async tx => {
-      // Restore stock for old medications
-      await Promise.all(
-        existing.medications.map(m =>
-          tx.medication.update({
-            where: { id: m.medicationId },
-            data: { stock: { increment: m.quantity } },
-          })
-        )
-      )
-      // Delete old session medications
-      await tx.sessionMedication.deleteMany({ where: { sessionId: id } })
+      // Compute net stock change per medication (new total - old total)
+      const oldQtyMap = new Map<string, number>()
+      for (const m of existing.medications) {
+        oldQtyMap.set(m.medicationId, (oldQtyMap.get(m.medicationId) ?? 0) + m.quantity)
+      }
+      const newQtyMap = new Map<string, number>()
+      for (const m of newMeds) {
+        newQtyMap.set(m.medicationId, (newQtyMap.get(m.medicationId) ?? 0) + m.quantity)
+      }
+      const allMedIds = new Set([...oldQtyMap.keys(), ...newQtyMap.keys()])
+      const netChanges = [...allMedIds].map(medId => ({
+        medId,
+        net: (newQtyMap.get(medId) ?? 0) - (oldQtyMap.get(medId) ?? 0),
+      }))
 
-      // Check sufficient stock for new medications (after old stock has been restored)
-      for (const med of newMeds) {
-        const medication = await tx.medication.findUnique({ where: { id: med.medicationId } })
-        if (!medication || medication.stock < med.quantity) {
-          throw new Error(`Insufficient stock for ${med.medicationId}`)
+      // Only check stock for medications where we need MORE than before
+      for (const { medId, net } of netChanges) {
+        if (net > 0) {
+          const medication = await tx.medication.findUnique({ where: { id: medId } })
+          if (!medication || medication.stock < net) {
+            throw new Error(`Insufficient stock for ${medId}`)
+          }
         }
       }
 
-      // Create new session medications and deduct stock
+      // Delete old session medications
+      await tx.sessionMedication.deleteMany({ where: { sessionId: id } })
+
+      // Create new session medications and apply net stock changes
       await Promise.all([
         tx.sessionMedication.createMany({
           data: newMeds.map(m => ({
@@ -94,12 +102,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
             sellingPrice: m.sellingPrice,
           })),
         }),
-        ...newMeds.map(m =>
-          tx.medication.update({
-            where: { id: m.medicationId },
-            data: { stock: { decrement: m.quantity } },
-          })
-        ),
+        ...netChanges
+          .filter(({ net }) => net !== 0)
+          .map(({ medId, net }) =>
+            tx.medication.update({
+              where: { id: medId },
+              data: { stock: net > 0 ? { decrement: net } : { increment: -net } },
+            })
+          ),
       ])
 
       return tx.patientSession.update({
