@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -47,11 +48,15 @@ export function ExpenseForm({ categories, mode = 'create', expenseId, defaultVal
 		formState: { errors, isSubmitting },
 	} = useForm<FormData>({
 		resolver: zodResolver(schema) as any,
-		defaultValues: defaultValues || { date: new Date().toISOString() },
+		defaultValues: defaultValues || { date: '' },
 	})
 
 	const dateValue = watch('date')
 	const categoryId = watch('categoryId')
+
+	useEffect(() => {
+		if (!defaultValues?.date) setValue('date', new Date().toISOString())
+	}, [])
 
 	async function onSubmit(data: FormData) {
 		if (mode === 'create') {

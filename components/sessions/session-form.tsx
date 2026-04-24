@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -88,13 +88,17 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 	} = useForm<FormData>({
 		resolver: zodResolver(schema) as Resolver<FormData>,
 		defaultValues: {
-			date: new Date().toISOString(),
+			date: '',
 			medications: [],
 			...defaultValues,
 		},
 	})
 
 	const dateValue = watch('date')
+
+	useEffect(() => {
+		if (!defaultValues?.date) setValue('date', new Date().toISOString())
+	}, [])
 
 	async function onSubmit(data: FormData) {
 		setError('')

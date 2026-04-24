@@ -143,7 +143,7 @@ export function RestockForm({ medications, mode = 'create', restockId, defaultVa
 	} = useForm<FormData>({
 		resolver: zodResolver(schema) as any,
 		defaultValues: defaultValues || {
-			date: new Date().toISOString(),
+			date: '',
 			items: [{ medicationId: '', quantity: 1, costPerUnit: 0, expiryDate: '' }],
 		},
 	})
@@ -151,6 +151,10 @@ export function RestockForm({ medications, mode = 'create', restockId, defaultVa
 
 	const dateValue = watch('date')
 	const itemsValue = watch('items')
+
+	useEffect(() => {
+		if (!defaultValues?.date) setValue('date', new Date().toISOString())
+	}, [])
 
 	async function onSubmit(data: FormData) {
 		const body = {
