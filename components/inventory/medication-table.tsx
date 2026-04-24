@@ -69,7 +69,7 @@ export function MedicationTable({ medications }: { medications: Medication[] }) 
                 {med.stock <= med.threshold && <span className="ml-1 text-orange-500">⚠ low</span>}
               </span>
               {med.nearestExpiry && (
-                <span>Exp: {new Date(med.nearestExpiry).toLocaleDateString()}</span>
+                <span>Exp: {new Date(med.nearestExpiry).toLocaleDateString('en-US')}</span>
               )}
             </div>
           </Link>
@@ -107,7 +107,7 @@ export function MedicationTable({ medications }: { medications: Medication[] }) 
                   )}
                 </td>
                 <td className="px-4 py-2 text-gray-500">
-                  {med.nearestExpiry ? new Date(med.nearestExpiry).toLocaleDateString() : '—'}
+                  {med.nearestExpiry ? new Date(med.nearestExpiry).toLocaleDateString('en-US') : '—'}
                 </td>
                 <td className="px-4 py-2">
                   <Badge variant={med.stock > 0 ? 'default' : 'destructive'}>

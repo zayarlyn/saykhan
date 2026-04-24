@@ -50,7 +50,7 @@ export function ExpenseTable({ expenses, onRowClick }: { expenses: Expense[], on
                 </div>
                 <div className="text-right shrink-0">
                   <p className="font-semibold text-sm">{Number(e.amount).toLocaleString()}</p>
-                  <p className="text-xs text-gray-400">{new Date(e.date).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-400">{new Date(e.date).toLocaleDateString('en-US')}</p>
                 </div>
               </div>
           </div>
@@ -76,7 +76,7 @@ export function ExpenseTable({ expenses, onRowClick }: { expenses: Expense[], on
               <tr key={e.id} className={`border-t hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick?.(e.id)}>
                 <td className="px-4 py-2 text-gray-500">
                   <Link href={`/expenses/${e.id}`} className="hover:underline">
-                    {new Date(e.date).toLocaleDateString()}
+                    {new Date(e.date).toLocaleDateString('en-US')}
                   </Link>
                 </td>
                 <td className="px-4 py-2">

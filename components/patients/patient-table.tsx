@@ -37,7 +37,7 @@ export function PatientTable({ patients }: { patients: Patient[] }) {
           <div key={p.id} className="bg-white border rounded-lg p-3 flex items-center justify-between">
             <div>
               <Link href={`/patients/${p.id}`} className="font-medium text-sm hover:underline">{p.name}</Link>
-              <p className="text-xs text-gray-400 mt-0.5">{new Date(p.createdAt).toLocaleDateString()}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{new Date(p.createdAt).toLocaleDateString('en-US')}</p>
             </div>
             <span className="text-xs text-gray-500">{p._count.sessions} sessions</span>
           </div>
@@ -62,7 +62,7 @@ export function PatientTable({ patients }: { patients: Patient[] }) {
                   <Link href={`/patients/${p.id}`} className="font-medium hover:underline">{p.name}</Link>
                 </td>
                 <td className="px-4 py-2">{p._count.sessions}</td>
-                <td className="px-4 py-2 text-gray-500">{new Date(p.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-2 text-gray-500">{new Date(p.createdAt).toLocaleDateString('en-US')}</td>
               </tr>
             ))}
           </tbody>

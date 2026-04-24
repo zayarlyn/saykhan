@@ -18,7 +18,7 @@ export function MonthNav({ month }: { month: string }) {
   }
 
   const [year, mon] = month.split('-').map(Number)
-  const label = new Date(year, mon - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' })
+  const label = new Date(year, mon - 1, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' })
 
   return (
     <div className="flex items-center justify-between">

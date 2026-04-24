@@ -46,7 +46,7 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
 						</div>
 						<div className='text-xs text-gray-500 flex items-center justify-between'>
 							<span>{s.serviceType.name}</span>
-							<span>{new Date(s.date).toLocaleDateString()}</span>
+							<span>{new Date(s.date).toLocaleDateString('en-US')}</span>
 						</div>
 						{s.medications.length > 0 && <p className='text-xs text-gray-400 truncate'>{s.medications.map((m) => `${m.medication.name}${m.medication.deletedAt ? ' (deleted)' : ''} ×${m.quantity}`).join(', ')}</p>}
 					</Link>
@@ -79,7 +79,7 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
 								<td className='px-4 py-2 text-gray-500 text-xs'>{s.medications.map((m) => `${m.medication.name}${m.medication.deletedAt ? ' (deleted)' : ''} ×${m.quantity}`).join(', ') || '—'}</td>
 								<td className='px-4 py-2'>{s.paymentMethod.name}</td>
 								<td className='px-4 py-2 font-medium'>{Number(s.paymentAmount).toLocaleString()}</td>
-								<td className='px-4 py-2 text-gray-500'>{new Date(s.date).toLocaleDateString()}</td>
+								<td className='px-4 py-2 text-gray-500'>{new Date(s.date).toLocaleDateString('en-US')}</td>
 							</tr>
 						))}
 					</tbody>
