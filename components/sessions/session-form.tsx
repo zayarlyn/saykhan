@@ -69,7 +69,7 @@ interface Props {
 		paymentAmount: number
 		medications: Array<{ medicationId: string; quantity: number; unitCost: number; sellingPrice: number }>
 	}
-	onSubmitOverride?: (data: FormData) => Promise<void>
+	onSubmitOverride?: (data: FormData) => Promise<{ error: string } | void>
 }
 
 export function SessionForm({ patients, serviceTypes, paymentMethods, medications, defaultValues, onSubmitOverride }: Props) {
@@ -104,11 +104,8 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 		setError('')
 
 		if (onSubmitOverride) {
-			try {
-				await onSubmitOverride(data)
-			} catch (e: unknown) {
-				setError(e instanceof Error ? e.message : 'Failed to save session')
-			}
+			const result = await onSubmitOverride(data)
+			if (result?.error) setError(result.error)
 			return
 		}
 

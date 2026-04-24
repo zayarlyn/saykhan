@@ -63,55 +63,59 @@ export default async function EditSessionPage({
     })),
   }
 
-  async function handleSubmit(data: SessionFormData) {
+  async function handleSubmit(data: SessionFormData): Promise<{ error: string } | void> {
     'use server'
     const existing = await prisma.patientSession.findUnique({
       where: { id, deletedAt: null },
       include: { medications: true },
     })
-    if (!existing) throw new Error('Session not found')
+    if (!existing) return { error: 'Session not found' }
 
     const { medications: newMeds, patientId, serviceTypeId, paymentMethodId, date, description, paymentAmount } = data
 
-    await prisma.$transaction(async tx => {
-      const oldQtyMap = new Map<string, number>()
-      for (const m of existing.medications) {
-        oldQtyMap.set(m.medicationId, (oldQtyMap.get(m.medicationId) ?? 0) + m.quantity)
-      }
-      const newQtyMap = new Map<string, number>()
-      for (const m of newMeds) {
-        newQtyMap.set(m.medicationId, (newQtyMap.get(m.medicationId) ?? 0) + m.quantity)
-      }
-      const allMedIds = new Set([...oldQtyMap.keys(), ...newQtyMap.keys()])
-      const netChanges = [...allMedIds].map(medId => ({
-        medId,
-        net: (newQtyMap.get(medId) ?? 0) - (oldQtyMap.get(medId) ?? 0),
-      }))
-
-      for (const { medId, net } of netChanges) {
-        if (net > 0) {
-          const medication = await tx.medication.findUnique({ where: { id: medId } })
-          if (!medication || medication.stock < net) throw new Error(`Insufficient stock for ${medId}`)
+    try {
+      await prisma.$transaction(async tx => {
+        const oldQtyMap = new Map<string, number>()
+        for (const m of existing.medications) {
+          oldQtyMap.set(m.medicationId, (oldQtyMap.get(m.medicationId) ?? 0) + m.quantity)
         }
-      }
+        const newQtyMap = new Map<string, number>()
+        for (const m of newMeds) {
+          newQtyMap.set(m.medicationId, (newQtyMap.get(m.medicationId) ?? 0) + m.quantity)
+        }
+        const allMedIds = new Set([...oldQtyMap.keys(), ...newQtyMap.keys()])
+        const netChanges = [...allMedIds].map(medId => ({
+          medId,
+          net: (newQtyMap.get(medId) ?? 0) - (oldQtyMap.get(medId) ?? 0),
+        }))
 
-      await tx.sessionMedication.deleteMany({ where: { sessionId: id } })
-      await Promise.all([
-        tx.sessionMedication.createMany({
-          data: newMeds.map(m => ({ sessionId: id, medicationId: m.medicationId, quantity: m.quantity, unitCost: m.unitCost, sellingPrice: m.sellingPrice })),
-        }),
-        ...netChanges
-          .filter(({ net }) => net !== 0)
-          .map(({ medId, net }) =>
-            tx.medication.update({ where: { id: medId }, data: { stock: net > 0 ? { decrement: net } : { increment: -net } } })
-          ),
-      ])
+        for (const { medId, net } of netChanges) {
+          if (net > 0) {
+            const medication = await tx.medication.findUnique({ where: { id: medId } })
+            if (!medication || medication.stock < net) throw new Error(`Insufficient stock for ${medId}`)
+          }
+        }
 
-      await tx.patientSession.update({
-        where: { id },
-        data: { patientId: patientId ?? null, serviceTypeId, paymentMethodId, date: new Date(date), description: description ?? null, paymentAmount },
+        await tx.sessionMedication.deleteMany({ where: { sessionId: id } })
+        await Promise.all([
+          tx.sessionMedication.createMany({
+            data: newMeds.map(m => ({ sessionId: id, medicationId: m.medicationId, quantity: m.quantity, unitCost: m.unitCost, sellingPrice: m.sellingPrice })),
+          }),
+          ...netChanges
+            .filter(({ net }) => net !== 0)
+            .map(({ medId, net }) =>
+              tx.medication.update({ where: { id: medId }, data: { stock: net > 0 ? { decrement: net } : { increment: -net } } })
+            ),
+        ])
+
+        await tx.patientSession.update({
+          where: { id },
+          data: { patientId: patientId ?? null, serviceTypeId, paymentMethodId, date: new Date(date), description: description ?? null, paymentAmount },
+        })
       })
-    })
+    } catch (e: unknown) {
+      return { error: e instanceof Error ? e.message : 'Failed to update session' }
+    }
 
     revalidatePath('/sessions')
     revalidatePath('/dashboard')
