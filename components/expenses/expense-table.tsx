@@ -53,7 +53,6 @@ export function ExpenseTable({ expenses, onRowClick }: { expenses: Expense[], on
                   <p className="text-xs text-gray-400">{new Date(e.date).toLocaleDateString()}</p>
                 </div>
               </div>
-            </div>
           </div>
         ))}
         {expenses.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No expenses yet</p>}
