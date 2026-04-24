@@ -41,7 +41,10 @@ export default async function EditSessionPage({
       sellingPrice: Number(m.medication.sellingPrice),
       deletedAt: m.medication.deletedAt!.toISOString(),
     }))
-  const allMedications = [...medications.map(m => ({ ...m, deletedAt: null as string | null })), ...deletedMedsInSession]
+  const allMedications = [
+    ...medications.map(m => ({ id: m.id, name: m.name, cost: Number(m.cost), sellingPrice: Number(m.sellingPrice), deletedAt: null as string | null })),
+    ...deletedMedsInSession,
+  ]
 
   const defaultValues = {
     patientId: session.patientId ?? null,
