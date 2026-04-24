@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Pagination } from '@/components/ui/pagination'
 
@@ -18,6 +19,7 @@ interface Expense {
 }
 
 export function ExpenseTable({ expenses, onRowClick }: { expenses: Expense[], onRowClick?: (expenseId: string) => void }) {
+  const router = useRouter()
   const [page, setPage] = useState(1)
   const totalPages = Math.ceil(expenses.length / PAGE_SIZE)
   const paged = expenses.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -27,8 +29,7 @@ export function ExpenseTable({ expenses, onRowClick }: { expenses: Expense[], on
       {/* Mobile cards */}
       <div className="md:hidden space-y-2">
         {paged.map(e => (
-          <Link key={e.id} href={`/expenses/${e.id}`}>
-            <div className="bg-white border rounded-lg p-3 space-y-1.5 hover:bg-gray-50 transition-colors">
+          <div key={e.id} onClick={() => router.push(`/expenses/${e.id}`)} className="bg-white border rounded-lg p-3 space-y-1.5 hover:bg-gray-50 transition-colors cursor-pointer">
               <div className="flex items-start justify-between gap-2">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5">
@@ -38,7 +39,7 @@ export function ExpenseTable({ expenses, onRowClick }: { expenses: Expense[], on
                   {e.description && <p className="text-xs text-gray-500">{e.description}</p>}
                   {e.type === 'RESTOCK' && e.restockBatchId && (
                     <div
-                      onClick={(evt) => evt.preventDefault()}
+                      onClick={(evt) => evt.stopPropagation()}
                       className="text-xs text-blue-600 hover:underline"
                     >
                       <Link href={`/inventory/restock/${e.restockBatchId}`}>
@@ -53,7 +54,7 @@ export function ExpenseTable({ expenses, onRowClick }: { expenses: Expense[], on
                 </div>
               </div>
             </div>
-          </Link>
+          </div>
         ))}
         {expenses.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No expenses yet</p>}
       </div>
