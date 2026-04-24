@@ -21,9 +21,14 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
 				})
 				const expiryMap = Object.fromEntries(expiryGroups.map(g => [g.medicationId, g._min.expiryDate]))
 				return medications.map(med => ({
-					...med,
+					id: med.id,
+					name: med.name,
+					category: { name: med.category.name },
+					unitType: med.unitType,
 					cost: Number(med.cost),
 					sellingPrice: Number(med.sellingPrice),
+					stock: med.stock,
+					threshold: med.threshold,
 					nearestExpiry: expiryMap[med.id]?.toISOString() ?? null,
 				}))
 			})()

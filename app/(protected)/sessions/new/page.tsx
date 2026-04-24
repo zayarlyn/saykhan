@@ -16,10 +16,10 @@ export default async function NewSessionPage() {
       <BackButton label="Sessions" />
       <h1 className="text-2xl font-bold">New Session</h1>
       <SessionForm
-        patients={patients}
-        serviceTypes={serviceTypes}
-        paymentMethods={paymentMethods}
-        medications={medications.map(m => ({ id: m.id, name: m.name, cost: Number(m.cost), sellingPrice: Number(m.sellingPrice) }))}
+        patients={patients.map(p => ({ id: p.id, name: p.name }))}
+        serviceTypes={serviceTypes.map(s => ({ id: s.id, name: s.name }))}
+        paymentMethods={paymentMethods.map(p => ({ id: p.id, name: p.name }))}
+        medications={medications.map(m => ({ id: m.id, name: m.name, cost: Number(m.cost), sellingPrice: Number(m.sellingPrice), deletedAt: null }))}
       />
     </div>
   )

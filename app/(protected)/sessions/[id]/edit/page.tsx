@@ -96,9 +96,9 @@ export default async function EditSessionPage({
         </Link>
       </div>
       <SessionForm
-        patients={patients}
-        serviceTypes={serviceTypes}
-        paymentMethods={paymentMethods}
+        patients={patients.map(p => ({ id: p.id, name: p.name }))}
+        serviceTypes={serviceTypes.map(s => ({ id: s.id, name: s.name }))}
+        paymentMethods={paymentMethods.map(p => ({ id: p.id, name: p.name }))}
         medications={allMedications}
         defaultValues={defaultValues}
         onSubmitOverride={handleSubmit}
