@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { SessionForm } from '@/components/sessions/session-form'
 import type { SessionFormData } from '@/lib/validations/session'
@@ -64,26 +65,56 @@ export default async function EditSessionPage({
 
   async function handleSubmit(data: SessionFormData) {
     'use server'
-    const { cookies } = await import('next/headers')
-    const cookieStore = await cookies()
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'}/api/sessions/${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Cookie: cookieStore.toString(),
-        },
-        body: JSON.stringify({
-          ...data,
-          date: new Date(data.date).toISOString(),
-        }),
+    const existing = await prisma.patientSession.findUnique({
+      where: { id, deletedAt: null },
+      include: { medications: true },
+    })
+    if (!existing) throw new Error('Session not found')
+
+    const { medications: newMeds, patientId, serviceTypeId, paymentMethodId, date, description, paymentAmount } = data
+
+    await prisma.$transaction(async tx => {
+      const oldQtyMap = new Map<string, number>()
+      for (const m of existing.medications) {
+        oldQtyMap.set(m.medicationId, (oldQtyMap.get(m.medicationId) ?? 0) + m.quantity)
       }
-    )
-    if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.error ?? 'Failed to update session')
-    }
+      const newQtyMap = new Map<string, number>()
+      for (const m of newMeds) {
+        newQtyMap.set(m.medicationId, (newQtyMap.get(m.medicationId) ?? 0) + m.quantity)
+      }
+      const allMedIds = new Set([...oldQtyMap.keys(), ...newQtyMap.keys()])
+      const netChanges = [...allMedIds].map(medId => ({
+        medId,
+        net: (newQtyMap.get(medId) ?? 0) - (oldQtyMap.get(medId) ?? 0),
+      }))
+
+      for (const { medId, net } of netChanges) {
+        if (net > 0) {
+          const medication = await tx.medication.findUnique({ where: { id: medId } })
+          if (!medication || medication.stock < net) throw new Error(`Insufficient stock for ${medId}`)
+        }
+      }
+
+      await tx.sessionMedication.deleteMany({ where: { sessionId: id } })
+      await Promise.all([
+        tx.sessionMedication.createMany({
+          data: newMeds.map(m => ({ sessionId: id, medicationId: m.medicationId, quantity: m.quantity, unitCost: m.unitCost, sellingPrice: m.sellingPrice })),
+        }),
+        ...netChanges
+          .filter(({ net }) => net !== 0)
+          .map(({ medId, net }) =>
+            tx.medication.update({ where: { id: medId }, data: { stock: net > 0 ? { decrement: net } : { increment: -net } } })
+          ),
+      ])
+
+      await tx.patientSession.update({
+        where: { id },
+        data: { patientId: patientId ?? null, serviceTypeId, paymentMethodId, date: new Date(date), description: description ?? null, paymentAmount },
+      })
+    })
+
+    revalidatePath('/sessions')
+    revalidatePath('/dashboard')
   }
 
   return (
