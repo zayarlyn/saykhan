@@ -92,7 +92,7 @@ export default async function EditSessionPage({
         for (const { medId, net } of netChanges) {
           if (net > 0) {
             const medication = await tx.medication.findUnique({ where: { id: medId } })
-            if (!medication || medication.stock < net) throw new Error(`Insufficient stock for ${medId}`)
+            if (!medication || medication.stock < net) throw new Error(`Insufficient stock for ${medication?.name ?? medId}`)
           }
         }
 
