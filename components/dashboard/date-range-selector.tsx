@@ -49,7 +49,7 @@ export function DateRangeSelector({ activePreset, from, to, basePath = '/dashboa
 
   return (
     <div className="space-y-2 w-full">
-      <Select value={activePreset} onValueChange={handleSelectChange}>
+      <Select value={activePreset} onValueChange={handleSelectChange} initialLabels={{ ...Object.fromEntries(PRESETS.map(p => [p.id, p.label])), custom: 'Custom' }}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select date range" />
         </SelectTrigger>

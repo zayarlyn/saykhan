@@ -177,7 +177,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 					control={control}
 					name='serviceTypeId'
 					render={({ field }) => (
-						<Select value={field.value ?? ''} onValueChange={field.onChange}>
+						<Select value={field.value ?? ''} onValueChange={field.onChange} initialLabels={Object.fromEntries(serviceTypes.map(s => [s.id, s.name]))}>
 							<SelectTrigger>
 								<SelectValue placeholder='Select service…' />
 							</SelectTrigger>
@@ -219,7 +219,7 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 						control={control}
 						name='paymentMethodId'
 						render={({ field }) => (
-							<Select value={field.value ?? ''} onValueChange={field.onChange}>
+							<Select value={field.value ?? ''} onValueChange={field.onChange} initialLabels={Object.fromEntries(paymentMethods.map(p => [p.id, p.name]))}>
 								<SelectTrigger>
 									<SelectValue placeholder='Select…' />
 								</SelectTrigger>

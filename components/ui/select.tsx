@@ -24,10 +24,14 @@ const SelectLabelsContext = React.createContext<LabelsContextType | null>(null)
 
 type SelectProps = Omit<React.ComponentProps<typeof SelectPrimitive.Root>, 'onValueChange'> & {
   onValueChange?: (value: string | null) => void
+  initialLabels?: Record<string, string>
 }
 
-function Select({ children, onValueChange, ...props }: SelectProps) {
-  const labelsRef = React.useRef(new Map<unknown, string>())
+function Select({ children, onValueChange, initialLabels, ...props }: SelectProps) {
+  const labelsRef = React.useRef<Map<unknown, string>>(null!)
+  if (!labelsRef.current) {
+    labelsRef.current = initialLabels ? new Map(Object.entries(initialLabels)) : new Map()
+  }
   const [, setVersion] = React.useState(0)
   const bumpVersion = React.useCallback(() => setVersion(v => v + 1), [])
   return (

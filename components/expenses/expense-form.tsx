@@ -51,6 +51,7 @@ export function ExpenseForm({ categories, mode = 'create', expenseId, defaultVal
 	})
 
 	const dateValue = watch('date')
+	const categoryId = watch('categoryId')
 
 	async function onSubmit(data: FormData) {
 		if (mode === 'create') {
@@ -74,7 +75,7 @@ export function ExpenseForm({ categories, mode = 'create', expenseId, defaultVal
 		<form onSubmit={handleSubmit(onSubmit)} className='space-y-4 max-w-md'>
 			<div className='space-y-1'>
 				<Label>Category</Label>
-				<Select onValueChange={(v: string | null) => setValue('categoryId', v ?? null)}>
+				<Select value={categoryId ?? ''} onValueChange={(v: string | null) => setValue('categoryId', v ?? null)} initialLabels={Object.fromEntries(categories.map(c => [c.id, c.name]))}>
 					<SelectTrigger className='w-full'>
 						<SelectValue placeholder='Select category…' />
 					</SelectTrigger>
