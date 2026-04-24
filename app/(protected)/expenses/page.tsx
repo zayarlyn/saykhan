@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { resolveRange } from '@/lib/date-range'
 import { buttonVariants } from '@/components/ui/button'
-import { ExpenseTable } from '@/components/expenses/expense-table'
+import { ExpenseTableWrapper } from '@/components/expenses/expense-table-wrapper'
 import { DateRangeSelector } from '@/components/dashboard/date-range-selector'
 
 export const dynamic = 'force-dynamic'
@@ -47,7 +47,7 @@ export default async function ExpensesPage({
           Total: <span className="font-semibold text-gray-900">{totalAmount.toLocaleString()} MMK</span>
         </div>
       )}
-      <ExpenseTable expenses={expenses.map(e => ({ ...e, amount: Number(e.amount), date: e.date.toISOString() }))} />
+      <ExpenseTableWrapper expenses={expenses.map(e => ({ ...e, amount: Number(e.amount), date: e.date.toISOString() }))} />
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="text-sm text-gray-600">

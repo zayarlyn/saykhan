@@ -9,10 +9,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { DatePicker } from '@/components/ui/date-picker'
+import { DateTimePicker } from '@/components/ui/datetime-picker'
 
 const schema = z.object({
-	categoryId: z.string().min(1, 'Category required'),
+	categoryId: z.string().optional().nullable(),
 	amount: z.coerce.number().positive(),
 	description: z.string().optional(),
 	date: z.string().min(1),
@@ -25,7 +25,19 @@ interface Category {
 	name: string
 }
 
-export function ExpenseForm({ categories }: { categories: Category[] }) {
+interface Props {
+	categories: Category[]
+	mode?: 'create' | 'edit'
+	expenseId?: string
+	defaultValues?: {
+		categoryId?: string | null
+		amount: number
+		description?: string
+		date: string
+	}
+}
+
+export function ExpenseForm({ categories, mode = 'create', expenseId, defaultValues }: Props) {
 	const router = useRouter()
 	const {
 		register,
@@ -35,25 +47,34 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
 		formState: { errors, isSubmitting },
 	} = useForm<FormData>({
 		resolver: zodResolver(schema) as any,
-		defaultValues: { date: new Date().toISOString() },
+		defaultValues: defaultValues || { date: new Date().toISOString() },
 	})
 
 	const dateValue = watch('date')
 
 	async function onSubmit(data: FormData) {
-		const res = await fetch('/api/expenses', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ ...data, date: new Date(data.date).toISOString() }),
-		})
-		if (res.ok) router.push('/expenses')
+		if (mode === 'create') {
+			const res = await fetch('/api/expenses', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ ...data, date: new Date(data.date).toISOString() }),
+			})
+			if (res.ok) router.push('/expenses')
+		} else if (mode === 'edit' && expenseId) {
+			const res = await fetch(`/api/expenses/${expenseId}`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ ...data, date: new Date(data.date).toISOString() }),
+			})
+			if (res.ok) router.push('/expenses')
+		}
 	}
 
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className='space-y-4 max-w-md'>
 			<div className='space-y-1'>
 				<Label>Category</Label>
-				<Select onValueChange={(v: string | null) => setValue('categoryId', v ?? '')}>
+				<Select onValueChange={(v: string | null) => setValue('categoryId', v ?? null)}>
 					<SelectTrigger className='w-full'>
 						<SelectValue placeholder='Select category…' />
 					</SelectTrigger>
@@ -74,14 +95,14 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
 			</div>
 			<div className='space-y-1'>
 				<Label>Date</Label>
-				<DatePicker value={dateValue ? new Date(dateValue) : undefined} onChange={(date) => setValue('date', date ? date.toISOString() : '')} />
+				<DateTimePicker value={dateValue ? new Date(dateValue) : undefined} onChange={(date) => setValue('date', date ? date.toISOString() : '')} />
 			</div>
 			<div className='space-y-1'>
 				<Label>Description</Label>
 				<Textarea {...register('description')} rows={2} />
 			</div>
 			<Button type='submit' disabled={isSubmitting}>
-				Save Expense
+				{mode === 'create' ? 'Create Expense' : 'Update Expense'}
 			</Button>
 		</form>
 	)

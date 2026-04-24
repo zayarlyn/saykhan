@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { SessionForm } from '@/components/sessions/session-form'
@@ -29,6 +29,19 @@ export default async function EditSessionPage({
   ])
 
   if (!session) notFound()
+
+  // Include deleted medications referenced by this session so they still display in the form
+  const activeMedIds = new Set(medications.map(m => m.id))
+  const deletedMedsInSession = session.medications
+    .filter(m => m.medication.deletedAt !== null && !activeMedIds.has(m.medication.id))
+    .map(m => ({
+      id: m.medication.id,
+      name: m.medication.name,
+      cost: Number(m.medication.cost),
+      sellingPrice: Number(m.medication.sellingPrice),
+      deletedAt: m.medication.deletedAt!.toISOString(),
+    }))
+  const allMedications = [...medications.map(m => ({ ...m, deletedAt: null as string | null })), ...deletedMedsInSession]
 
   const defaultValues = {
     patientId: session.patientId ?? null,
@@ -68,7 +81,6 @@ export default async function EditSessionPage({
       const err = await res.json()
       throw new Error(err.error ?? 'Failed to update session')
     }
-    redirect(`/sessions/${id}`)
   }
 
   return (
@@ -84,12 +96,7 @@ export default async function EditSessionPage({
         patients={patients}
         serviceTypes={serviceTypes}
         paymentMethods={paymentMethods}
-        medications={medications.map(m => ({
-          id: m.id,
-          name: m.name,
-          cost: Number(m.cost),
-          sellingPrice: Number(m.sellingPrice),
-        }))}
+        medications={allMedications}
         defaultValues={defaultValues}
         onSubmitOverride={handleSubmit}
       />

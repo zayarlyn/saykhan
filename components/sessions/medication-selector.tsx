@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-interface Medication { id: string; name: string; cost: number; sellingPrice: number }
+interface Medication { id: string; name: string; cost: number; sellingPrice: number; deletedAt?: string | null }
 
 function MedicationDropdown({ medications, value, onChange }: { medications: Medication[]; value?: string; onChange: (id: string) => void }) {
 	const selected = value ? medications.find(m => m.id === value) : null
@@ -67,6 +67,7 @@ function MedicationDropdown({ medications, value, onChange }: { medications: Med
 					placeholder='Search medications…'
 					className='flex-1 bg-transparent outline-none placeholder:text-muted-foreground min-w-0'
 				/>
+				{selected?.deletedAt && <span className='text-xs text-red-500 shrink-0'>(deleted)</span>}
 				<ChevronsUpDown className='size-4 shrink-0 text-muted-foreground' />
 			</div>
 
@@ -85,6 +86,7 @@ function MedicationDropdown({ medications, value, onChange }: { medications: Med
 							>
 								<Check className={cn('size-3.5 shrink-0', value === m.id ? 'inline' : 'hidden')} />
 								{m.name}
+								{m.deletedAt && <span className='ml-1 text-xs text-red-500'>(deleted)</span>}
 							</li>
 						))}
 					</ul>

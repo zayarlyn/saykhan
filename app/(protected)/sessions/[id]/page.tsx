@@ -65,7 +65,10 @@ export default async function SessionDetailPage({
             <div className="md:hidden space-y-2">
               {session.medications.map(m => (
                 <div key={m.id} className="rounded border bg-white p-3 text-sm">
-                  <p className="font-medium">{m.medication.name}</p>
+                  <p className="font-medium">
+                    {m.medication.name}
+                    {m.medication.deletedAt && <span className="ml-1.5 text-xs text-red-500 font-normal">(deleted)</span>}
+                  </p>
                   <p className="text-gray-500 mt-0.5">
                     {m.quantity} × {Number(m.sellingPrice).toLocaleString()} ={' '}
                     <span className="font-medium text-gray-800">
@@ -94,7 +97,10 @@ export default async function SessionDetailPage({
                 <tbody>
                   {session.medications.map(m => (
                     <tr key={m.id} className="border-t">
-                      <td className="px-4 py-2">{m.medication.name}</td>
+                      <td className="px-4 py-2">
+                        {m.medication.name}
+                        {m.medication.deletedAt && <span className="ml-1.5 text-xs text-red-500">(deleted)</span>}
+                      </td>
                       <td className="px-4 py-2 text-right">{m.quantity}</td>
                       <td className="px-4 py-2 text-right">{Number(m.sellingPrice).toLocaleString()}</td>
                       <td className="px-4 py-2 text-right">{(m.quantity * Number(m.sellingPrice)).toLocaleString()}</td>

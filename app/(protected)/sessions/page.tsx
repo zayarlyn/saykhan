@@ -85,7 +85,7 @@ export default async function SessionsPage({
               date: s.date.toISOString(),
               medications: s.medications.map(m => ({
                 quantity: m.quantity,
-                medication: { name: m.medication.name },
+                medication: { name: m.medication.name, deletedAt: m.medication.deletedAt?.toISOString() ?? null },
               })),
             }))}
           />

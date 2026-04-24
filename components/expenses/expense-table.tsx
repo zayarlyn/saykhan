@@ -17,7 +17,7 @@ interface Expense {
   restockBatchId: string | null
 }
 
-export function ExpenseTable({ expenses }: { expenses: Expense[] }) {
+export function ExpenseTable({ expenses, onRowClick }: { expenses: Expense[], onRowClick?: (expenseId: string) => void }) {
   const [page, setPage] = useState(1)
   const totalPages = Math.ceil(expenses.length / PAGE_SIZE)
   const paged = expenses.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -27,26 +27,33 @@ export function ExpenseTable({ expenses }: { expenses: Expense[] }) {
       {/* Mobile cards */}
       <div className="md:hidden space-y-2">
         {paged.map(e => (
-          <div key={e.id} className="bg-white border rounded-lg p-3 space-y-1.5">
-            <div className="flex items-start justify-between gap-2">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-1.5">
-                  <Badge variant={e.type === 'RESTOCK' ? 'secondary' : 'outline'} className="text-xs">{e.type}</Badge>
-                  {e.category && <span className="text-xs text-gray-500">{e.category.name}</span>}
+          <Link key={e.id} href={`/expenses/${e.id}`}>
+            <div className="bg-white border rounded-lg p-3 space-y-1.5 hover:bg-gray-50 transition-colors">
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant={e.type === 'RESTOCK' ? 'secondary' : 'outline'} className="text-xs">{e.type}</Badge>
+                    {e.category && <span className="text-xs text-gray-500">{e.category.name}</span>}
+                  </div>
+                  {e.description && <p className="text-xs text-gray-500">{e.description}</p>}
+                  {e.type === 'RESTOCK' && e.restockBatchId && (
+                    <div
+                      onClick={(evt) => evt.preventDefault()}
+                      className="text-xs text-blue-600 hover:underline"
+                    >
+                      <Link href={`/inventory/restock/${e.restockBatchId}`}>
+                        View Restock
+                      </Link>
+                    </div>
+                  )}
                 </div>
-                {e.description && <p className="text-xs text-gray-500">{e.description}</p>}
-                {e.type === 'RESTOCK' && e.restockBatchId && (
-                  <Link href={`/inventory/restock/${e.restockBatchId}`} className="text-xs text-blue-600 hover:underline">
-                    View Restock
-                  </Link>
-                )}
-              </div>
-              <div className="text-right shrink-0">
-                <p className="font-semibold text-sm">{Number(e.amount).toLocaleString()}</p>
-                <p className="text-xs text-gray-400">{new Date(e.date).toLocaleDateString()}</p>
+                <div className="text-right shrink-0">
+                  <p className="font-semibold text-sm">{Number(e.amount).toLocaleString()}</p>
+                  <p className="text-xs text-gray-400">{new Date(e.date).toLocaleDateString()}</p>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
         {expenses.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No expenses yet</p>}
       </div>
@@ -66,8 +73,12 @@ export function ExpenseTable({ expenses }: { expenses: Expense[] }) {
           </thead>
           <tbody>
             {paged.map(e => (
-              <tr key={e.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-2 text-gray-500">{new Date(e.date).toLocaleDateString()}</td>
+              <tr key={e.id} className={`border-t hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick?.(e.id)}>
+                <td className="px-4 py-2 text-gray-500">
+                  <Link href={`/expenses/${e.id}`} className="hover:underline">
+                    {new Date(e.date).toLocaleDateString()}
+                  </Link>
+                </td>
                 <td className="px-4 py-2">
                   <Badge variant={e.type === 'RESTOCK' ? 'secondary' : 'outline'}>{e.type}</Badge>
                 </td>
@@ -78,6 +89,11 @@ export function ExpenseTable({ expenses }: { expenses: Expense[] }) {
                   {e.type === 'RESTOCK' && e.restockBatchId && (
                     <Link href={`/inventory/restock/${e.restockBatchId}`} className="text-xs text-blue-600 hover:underline">
                       View Restock
+                    </Link>
+                  )}
+                  {e.type === 'MANUAL' && (
+                    <Link href={`/expenses/${e.id}`} className="text-xs text-blue-600 hover:underline">
+                      View
                     </Link>
                   )}
                 </td>

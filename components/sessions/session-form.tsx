@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm, type Resolver } from 'react-hook-form'
+import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -51,6 +51,7 @@ interface Medication {
 	name: string
 	cost: number
 	sellingPrice: number
+	deletedAt?: string | null
 }
 
 interface Props {
@@ -172,18 +173,22 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 
 			<div className='space-y-1'>
 				<Label>Service Type</Label>
-				<Select defaultValue={defaultValues?.serviceTypeId} onValueChange={(v: string | null) => setValue('serviceTypeId', v ?? '')}>
-					<SelectTrigger>
-						<SelectValue placeholder='Select service…' />
-					</SelectTrigger>
-					<SelectContent>
-						{serviceTypes.map((s) => (
-							<SelectItem key={s.id} value={s.id}>
-								{s.name}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				<Controller
+					control={control}
+					name='serviceTypeId'
+					render={({ field }) => (
+						<Select value={field.value ?? ''} onValueChange={field.onChange}>
+							<SelectTrigger>
+								<SelectValue placeholder='Select service…' />
+							</SelectTrigger>
+							<SelectContent>
+								{serviceTypes.map((s) => (
+									<SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					)}
+				/>
 				{errors.serviceTypeId && <p className='text-xs text-red-500'>Required</p>}
 			</div>
 
@@ -210,18 +215,22 @@ export function SessionForm({ patients, serviceTypes, paymentMethods, medication
 				</div>
 				<div className='space-y-1'>
 					<Label>Payment Method</Label>
-					<Select defaultValue={defaultValues?.paymentMethodId} onValueChange={(v: string | null) => setValue('paymentMethodId', v ?? '')}>
-						<SelectTrigger>
-							<SelectValue placeholder='Select…' />
-						</SelectTrigger>
-						<SelectContent>
-							{paymentMethods.map((p) => (
-								<SelectItem key={p.id} value={p.id}>
-									{p.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+					<Controller
+						control={control}
+						name='paymentMethodId'
+						render={({ field }) => (
+							<Select value={field.value ?? ''} onValueChange={field.onChange}>
+								<SelectTrigger>
+									<SelectValue placeholder='Select…' />
+								</SelectTrigger>
+								<SelectContent>
+									{paymentMethods.map((p) => (
+										<SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+					/>
 					{errors.paymentMethodId && <p className='text-xs text-red-500'>Required</p>}
 				</div>
 			</div>

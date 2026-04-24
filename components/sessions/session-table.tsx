@@ -15,7 +15,7 @@ interface Session {
 	paymentMethod: { name: string }
 	date: string
 	paymentAmount: number
-	medications: Array<{ medication: { name: string }; quantity: number }>
+	medications: Array<{ medication: { name: string; deletedAt: string | null }; quantity: number }>
 }
 
 export function SessionTable({ sessions }: { sessions: Session[] }) {
@@ -48,7 +48,7 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
 							<span>{s.serviceType.name}</span>
 							<span>{new Date(s.date).toLocaleDateString()}</span>
 						</div>
-						{s.medications.length > 0 && <p className='text-xs text-gray-400 truncate'>{s.medications.map((m) => `${m.medication.name} ×${m.quantity}`).join(', ')}</p>}
+						{s.medications.length > 0 && <p className='text-xs text-gray-400 truncate'>{s.medications.map((m) => `${m.medication.name}${m.medication.deletedAt ? ' (deleted)' : ''} ×${m.quantity}`).join(', ')}</p>}
 					</Link>
 				))}
 				{filtered.length === 0 && <p className='text-center py-8 text-gray-400 text-sm'>No sessions found</p>}
@@ -76,7 +76,7 @@ export function SessionTable({ sessions }: { sessions: Session[] }) {
 										: <span className='text-gray-400'>Walk-in</span>}
 								</td>
 								<td className='px-4 py-2'>{s.serviceType.name}</td>
-								<td className='px-4 py-2 text-gray-500 text-xs'>{s.medications.map((m) => `${m.medication.name} ×${m.quantity}`).join(', ') || '—'}</td>
+								<td className='px-4 py-2 text-gray-500 text-xs'>{s.medications.map((m) => `${m.medication.name}${m.medication.deletedAt ? ' (deleted)' : ''} ×${m.quantity}`).join(', ') || '—'}</td>
 								<td className='px-4 py-2'>{s.paymentMethod.name}</td>
 								<td className='px-4 py-2 font-medium'>{Number(s.paymentAmount).toLocaleString()}</td>
 								<td className='px-4 py-2 text-gray-500'>{new Date(s.date).toLocaleDateString()}</td>
